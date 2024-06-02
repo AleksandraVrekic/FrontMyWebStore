@@ -1,0 +1,16 @@
+<div class="cart">
+  <h2>Your Cart</h2>
+  <div *ngIf="cartItems.length === 0">Your cart is empty.</div>
+  <div *ngFor="let item of cartItems">
+    <h3>{{ item.name }}</h3>
+    <p>{{ item.description }}</p>
+    <p>Price: {{ item.price | currency }}</p>
+    <p>Quantity: {{ item.quantity }}</p>
+    <button (click)="increaseQuantity(item)">+</button>
+    <button (click)="removeFromCart(item)">Remove</button>
+  </div>
+  <h3>Total Quantity: {{ totalQuantity }}</h3>
+  <h3>Total: {{ total | currency }}</h3>
+  <!-- src/app/cart/cart.component.html -->
+  <button routerLink="/checkout" class="btn btn-primary">Checkout</button>
+</div>

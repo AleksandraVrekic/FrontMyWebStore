@@ -9,6 +9,7 @@ import { ProductsListComponent } from './app/products/products-list/products-lis
 import { ProductDetailsComponent } from './app/products/product-details/product-details.component';
 import { RegisterComponent } from './app/authentication/register/register.component';
 import { EditProductComponent } from './app/products/edit-product/edit-product.component';
+import { CartComponent } from './app/cart/cart.component';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -20,7 +21,8 @@ bootstrapApplication(AppComponent, {
       { path: 'products/:id', component: ProductDetailsComponent },
       { path: 'auth', loadChildren: () => import('./app/authentication/authentication.module').then(m => m.AuthenticationModule) },
       { path: 'auth/login', loadComponent: () => import('./app/authentication/login/login.component').then(m => m.LoginComponent) },
-      { path: 'auth/register', loadComponent: () => import('./app/authentication/register/register.component').then(m => RegisterComponent) }
+      { path: 'auth/register', loadComponent: () => import('./app/authentication/register/register.component').then(m => RegisterComponent) },
+      { path: 'cart', component: CartComponent },
     ])
   ]
 })

@@ -15,6 +15,7 @@ import { DeleteCategoryComponent } from '../../category/delete-category/delete-c
 import { EditCategoryComponent } from '../../category/edit-category/edit-category.component';
 import { AddCategoryComponent } from '../../category/add-category/add-category.component';
 import { Subscription } from 'rxjs';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-product-list',
@@ -38,7 +39,8 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     private categoryService: CategoryService,
     private fb: FormBuilder,
     public dialog: MatDialog,
-    public authService: AuthService
+    public authService: AuthService,
+    private cartService: CartService,
   ) {
     this.searchForm = this.fb.group({
       productName: ['', Validators.required]
@@ -164,6 +166,10 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   getPageNumbers(): number[] {
     const totalPages = Math.ceil(this.products.length / this.pageSize);
     return Array(totalPages).fill(0).map((x, i) => i + 1);
+  }
+
+  addToCart(product: Product) {
+    this.cartService.addToCart(product);
   }
 
   fetchProductsByCategory(categoryId: number) {

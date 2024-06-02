@@ -6,6 +6,7 @@ import { AuthDialogComponent } from './auth-dialog/auth-dialog.component';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { ReactiveFormsModule } from '@angular/forms';
+import { CartComponent } from './cart/cart.component';
 
 @Component({
   selector: 'app-root',
@@ -31,12 +32,12 @@ export class AppComponent {
       autoFocus: true
     });
   }
-/*
+
   openCartDialog() {
     this.dialog.open(CartComponent, {
       width: '400px'
     });
-  }*/
+  }
 
   title = 'my-web-shop';
 }

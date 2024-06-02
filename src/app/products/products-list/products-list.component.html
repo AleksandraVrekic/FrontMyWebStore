@@ -32,6 +32,7 @@
       <h3>{{ product.name }}</h3>
       <p>Price: {{ product.price }}</p>
       <a [routerLink]="['/products', product.id]">View Details</a>
+      <button (click)="addToCart(product)">Add to Cart</button>
       <button *ngIf="authService.isAdmin()" (click)="deleteProduct(product.id)">Delete</button>
       <button *ngIf="authService.isAdmin()" [routerLink]="['/edit-product', product.id]">Edit</button>
     </div>
