@@ -1,0 +1,33 @@
+<!-- src/app/auth/register/register.component.html -->
+<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+  <div>
+    <label for="name">Name:</label>
+    <input id="name" type="text" formControlName="name" />
+  </div>
+  <div>
+    <label for="surname">Surname:</label>
+    <input id="surname" type="text" formControlName="surname" />
+  </div>
+  <div>
+    <label for="email">Email:</label>
+    <input id="email" type="email" formControlName="email" />
+  </div>
+  <div>
+    <label for="username">Username:</label>
+    <input id="username" type="text" formControlName="username" />
+  </div>
+  <div>
+    <label for="password">Password:</label>
+    <input id="password" type="password" formControlName="password" />
+  </div>
+  <div>
+    <label for="phone">Phone:</label>
+    <input id="phone" type="text" formControlName="phone" />
+  </div>
+  <div>
+    <label for="addressId">Address ID:</label>
+    <input id="addressId" type="number" formControlName="addressId" />
+  </div>
+  <button type="submit">Register</button>
+</form>
+

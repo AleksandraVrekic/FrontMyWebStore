@@ -1,0 +1,19 @@
+<div class="app-container">
+  <header>
+    <h1>Welcome to My Web Shop</h1>
+    <nav>
+      <ul>
+        <li><a routerLink="/products">Products</a></li>
+        <li><a routerLink="/orders">Orders</a></li>
+        <li><a routerLink="/customers">Customers</a></li>
+        <li><button (click)="openAuthDialog()">Nalog</button></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <router-outlet></router-outlet>
+  </main>
+  <footer>
+    <p>© 2024 My Web Shop. All rights reserved.</p>
+  </footer>
+</div>

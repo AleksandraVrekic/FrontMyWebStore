@@ -1,0 +1,59 @@
+<h1 mat-dialog-title>{{ isLoginMode ? 'Login' : 'Register' }}</h1>
+<div mat-dialog-content>
+  <ng-container *ngIf="!isLoggedIn; else welcomeTemplate">
+    <form *ngIf="isLoginMode; else registerTemplate" [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()">
+      <div>
+        <label for="username">Username:</label>
+        <input id="username" formControlName="username" />
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input id="password" type="password" formControlName="password" />
+      </div>
+      <button type="submit">Login</button>
+    </form>
+    <ng-template #registerTemplate>
+      <form [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()">
+        <div>
+          <label for="name">Name:</label>
+          <input id="name" type="text" formControlName="name" />
+        </div>
+        <div>
+          <label for="surname">Surname:</label>
+          <input id="surname" type="text" formControlName="surname" />
+        </div>
+        <div>
+          <label for="email">Email:</label>
+          <input id="email" type="email" formControlName="email" />
+        </div>
+        <div>
+          <label for="username">Username:</label>
+          <input id="username" type="text" formControlName="username" />
+        </div>
+        <div>
+          <label for="password">Password:</label>
+          <input id="password" type="password" formControlName="password" />
+        </div>
+        <div>
+          <label for="phone">Phone:</label>
+          <input id="phone" type="text" formControlName="phone" />
+        </div>
+        <div>
+          <label for="addressId">Address ID:</label>
+          <input id="addressId" type="number" formControlName="addressId" />
+        </div>
+        <button type="submit">Register</button>
+      </form>
+    </ng-template>
+  </ng-container>
+  <ng-template #welcomeTemplate>
+    <p>Welcome, {{ username }}</p>
+  </ng-template>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="switchMode()" *ngIf="!isLoggedIn">{{ isLoginMode ? 'Switch to Register' : 'Switch to Login' }}</button>
+  <button mat-button (click)="dialogRef.close()">Close</button>
+  <button *ngIf="isLoggedIn" mat-button (click)="logout()">Logout</button>
+</div>
+
+

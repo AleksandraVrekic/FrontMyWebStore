@@ -1,0 +1,64 @@
+$app-background-color: #ede0e0; /* Beige color */
+$app-primary-color: #9c7b7b;
+$app-secondary-color: #333;
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: $app-background-color;
+}
+
+header {
+  background: $app-primary-color;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  display: flex; /* Use flex to align items horizontally */
+  justify-content: center; /* Center align the navigation items */
+  margin: 0;
+}
+
+nav ul li {
+  margin-right: 15px;
+}
+
+nav ul li:last-child {
+  margin-right: 0;
+}
+
+nav ul li a, nav ul li button {
+  color: white;
+  text-decoration: none;
+  padding: 5px 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+nav ul li a:hover, nav ul li button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+main {
+  flex: 1;
+  padding: 20px;
+}
+
+footer {
+  background: $app-secondary-color;
+  color: white;
+  text-align: center;
+  padding: 10px 20px;
+}
+
+
+

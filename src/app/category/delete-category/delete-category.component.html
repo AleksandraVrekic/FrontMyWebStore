@@ -1,0 +1,7 @@
+<h2 mat-dialog-title>Confirm Deletion</h2>
+<mat-dialog-content>Are you sure you want to delete the category "{{ data.categoryName }}"?</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-raised-button color="warn" (click)="onDelete()">Delete</button>
+  <button mat-button (click)="onCancel()">Cancel</button>
+</mat-dialog-actions>
+

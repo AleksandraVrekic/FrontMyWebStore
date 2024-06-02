@@ -1,0 +1,76 @@
+<h2>Product List</h2>
+<div class="container">
+  <div class="sidebar">
+    <h3>Categories</h3>
+    <ul>
+      <li *ngFor="let category of categories">
+        <button (click)="fetchProductsByCategory(category.categoryId)">
+          {{ category.categoryName }}
+        </button>
+        <button *ngIf="authService.isAdmin()" (click)="openEditCategoryDialog(category)">Edit</button>
+        <button *ngIf="authService.isAdmin()" (click)="openDeleteCategoryDialog(category)">Delete</button>
+      </li>
+    </ul>
+    <button *ngIf="authService.isAdmin()" (click)="openAddCategoryDialog()">Add New Category</button>
+  </div>
+
+  <div class="content">
+    <button *ngIf="authService.isAdmin()" (click)="openAddProductDialog()" style="margin-bottom: 20px;">Add New Product</button>
+
+    <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+      <label for="productName">Product Name:</label>
+      <input id="productName" formControlName="productName" placeholder="Search products..." />
+      <button type="submit">Search</button>
+    </form>
+
+    <div>
+      <button (click)="sortProductsByPrice('asc')">Sort by Price (Ascending)</button>
+      <button (click)="sortProductsByPrice('desc')">Sort by Price (Descending)</button>
+    </div>
+
+    <div *ngFor="let product of paginatedProducts" class="product">
+      <h3>{{ product.name }}</h3>
+      <p>Price: {{ product.price }}</p>
+      <a [routerLink]="['/products', product.id]">View Details</a>
+      <button *ngIf="authService.isAdmin()" (click)="deleteProduct(product.id)">Delete</button>
+      <button *ngIf="authService.isAdmin()" [routerLink]="['/edit-product', product.id]">Edit</button>
+    </div>
+
+    <div class="pagination">
+      <button *ngFor="let pageNumber of getPageNumbers()" (click)="onPageChange(pageNumber)" [class.active]="pageNumber === currentPage">
+        {{ pageNumber }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .container {
+    display: flex;
+  }
+
+  .sidebar {
+    width: 20%;
+    border-right: 1px solid #ccc;
+    padding-right: 10px;
+  }
+
+  .content {
+    width: 80%;
+    padding-left: 10px;
+  }
+
+  .product {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .pagination {
+    margin-top: 20px;
+  }
+
+  .pagination button.active {
+    font-weight: bold;
+  }
+</style>

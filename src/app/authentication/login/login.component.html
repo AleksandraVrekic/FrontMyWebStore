@@ -1,0 +1,18 @@
+<!-- src/app/auth/login/login.component.html -->
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+  <div>
+    <label for="username">Username:</label>
+    <input id="username" formControlName="username" />
+  </div>
+  <div>
+    <label for="password">Password:</label>
+    <input id="password" type="password" formControlName="password" />
+  </div>
+  <button type="submit">Login</button>
+</form>
+
+
+
+
+
+
