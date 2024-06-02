@@ -5,12 +5,15 @@ import { Product } from '../models/product-model';
 import { CartService } from '../services/cart.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
+import { CheckoutComponent } from '../checkout/checkout.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+
 @Component({
   selector: 'app-cart',
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterModule]
+  imports: [CommonModule, MatSnackBarModule]
 })
 export class CartComponent implements OnInit {
   cartItems: Product[] = [];
@@ -19,7 +22,6 @@ export class CartComponent implements OnInit {
 
   constructor(
     private cartService: CartService,
-    //private stripeService: StripeService,
     private dialog: MatDialog
   ) {}
 
@@ -44,16 +46,16 @@ export class CartComponent implements OnInit {
     this.cartService.removeFromCart(product);
     this.updateCartSummary();
   }
-  /*
+
   onPlati(): void {
-    console.log(this.dialog);
     const dialogRef = this.dialog.open(CheckoutComponent, {
       width: '400px',
-      data: { total: this.total }  // Pass the total amount to the Stripe checkout
+      data: { total: this.total }
     });
 
     dialogRef.afterClosed().subscribe(() => {
       console.log('The dialog was closed');
     });
-  }*/
+  }
 }
+

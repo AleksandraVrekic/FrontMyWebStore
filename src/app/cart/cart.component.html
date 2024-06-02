@@ -11,6 +11,5 @@
   </div>
   <h3>Total Quantity: {{ totalQuantity }}</h3>
   <h3>Total: {{ total | currency }}</h3>
-  <!-- src/app/cart/cart.component.html -->
-  <button routerLink="/checkout" class="btn btn-primary">Checkout</button>
+  <button (click)="onPlati()" class="btn btn-primary">Checkout</button>
 </div>
