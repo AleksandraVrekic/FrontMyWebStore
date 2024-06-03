@@ -28,10 +28,10 @@
 
   <mat-form-field appearance="fill">
     <mat-label>Category</mat-label>
-    <mat-select formControlName="categoryId" required>
+    <mat-select formControlName="categoryId">
       <mat-option *ngFor="let category of categories" [value]="category.categoryId">{{ category.categoryName }}</mat-option>
     </mat-select>
-    <mat-error *ngIf="productForm.get('categoryId')?.hasError('required')">Category is required</mat-error>
+    <mat-error *ngIf="productForm.get('categoryId')?.hasError('')">Category is required</mat-error>
   </mat-form-field>
 
   <button mat-raised-button color="primary" type="submit" [disabled]="productForm.invalid">Add Product</button>

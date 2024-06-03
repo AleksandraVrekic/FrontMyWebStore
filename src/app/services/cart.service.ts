@@ -42,9 +42,11 @@ export class CartService {
   }
 
   clearCart() {
+    console.log('Clearing cart...');
     this.cartItems = [];
-    this.cartItemsSubject.next(this.cartItems);
-    this.saveCartItems();
+    this.cartItemsSubject.next(this.cartItems); // Emituje praznu korpu
+    this.saveCartItems(); // Sprema praznu korpu u local storage
+    console.log('Cart cleared. Current items:', this.cartItems);
   }
 
   private saveCartItems() {

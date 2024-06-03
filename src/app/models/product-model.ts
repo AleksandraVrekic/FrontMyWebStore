@@ -1,9 +1,19 @@
-export interface Product {
+export class Product {
   id: number;
   name: string;
-  description?: string;  // Optional because it might not be required
+  description: string;
   price: number;
   quantity: number;
-  image?: string;  // Optional image field
-  categoryId: number;  // No longer optional in the constructor
+  image: string | null;
+  category?: any;
+
+  constructor(id: number, name: string, description: string, price: number, quantity: number, image: string | null, category: any) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.price = price;
+    this.quantity = quantity;
+    this.image = image;
+    this.category = category;
+  }
 }

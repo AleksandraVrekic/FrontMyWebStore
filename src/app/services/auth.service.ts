@@ -29,14 +29,14 @@ export class AuthService {
       );
   }
 
-  saveTokenAndUserData(token: string, username: string, firstName: string, lastName: string, email: string, userRole: string, userId: string): void {
+  saveTokenAndUserData(token: string, username: string, firstName: string, lastName: string, email: string, role: string, id: string): void {
     localStorage.setItem('authToken', token);
     localStorage.setItem('username', username);
     localStorage.setItem('firstName', firstName);
     localStorage.setItem('lastName', lastName);
     localStorage.setItem('email', email);
-    localStorage.setItem('userRole', userRole);
-    localStorage.setItem('userId', userId);  // Dodavanje userId u localStorage
+    localStorage.setItem('userRole', role);
+    localStorage.setItem('userId', id);  // Dodavanje userId u localStorage
   }
 
   register(username: string, password: string, name: string, surname: string, email: string, phone: string, addressId: number): Observable<any> {
@@ -50,6 +50,7 @@ export class AuthService {
       addressId,
       userRole: 'CUSTOMER' // Assuming role needs to be sent as well
     };
+    console.log('Sending registration data:', registrationData);
     return this.http.post(`${this.baseUrl}/register/customer`, registrationData, { responseType: 'text' });
   }
 

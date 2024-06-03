@@ -8,6 +8,10 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Product } from '../models/product-model';
+import { OrderService } from '../services/order.service';
+import { Order } from '../models/order';
+import { OrderItem } from '../models/order-item';
+import { Account } from '../models/account';
 
 @Component({
   selector: 'app-checkout',
@@ -31,8 +35,15 @@ export class CheckoutComponent implements OnInit {
     private formService: FormService,
     private cartService: CartService,
     private authService: AuthService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private orderService: OrderService,
   ) {}
+
+  showSuccessMessage(): void {
+    this.snackBar.open('Order successfully created!', 'Close', {
+      duration: 3000 // zatvara se nakon 3000 milisekundi
+    });
+  }
 
   ngOnInit(): void {
     this.checkoutFormGroup = this.formBuilder.group({
@@ -94,11 +105,27 @@ export class CheckoutComponent implements OnInit {
 
   onSubmit() {
     if (this.checkoutFormGroup.valid) {
-      console.log('Form is valid:', this.checkoutFormGroup.value);
-      this.snackBar.open('Form successfully submitted!', 'Close', {
-        duration: 3000
+      const orderData = this.prepareOrderData();
+      this.orderService.createOrder(orderData).subscribe({
+        next: (order) => {
+          console.log('Order successfully created:', order);
+          this.snackBar.open('Order successfully created!', 'Close', {
+            duration: 3000
+          });
+          this.cartService.clearCart();
+          console.log('Cart items after clearing:', this.cartService.getCartItemsValue());
+          // Dodatni logovi za proveru
+          this.cartService.getCartItems().subscribe(items => {
+            console.log('Cart items after clearing (observable):', items);
+          });
+        },
+        error: (error) => {
+          console.error('Error creating order:', error);
+          this.snackBar.open('Error creating order. Please try again.', 'Close', {
+            duration: 3000
+          });
+        }
       });
-      this.cartService.clearCart();
     } else {
       console.error('Form is not valid');
       this.markAllAsTouched(this.checkoutFormGroup);
@@ -107,6 +134,41 @@ export class CheckoutComponent implements OnInit {
       });
     }
   }
+
+    // Metod koji priprema podatke za narudžbinu
+    prepareOrderData(): Order {
+      const formValues = this.checkoutFormGroup.value;
+      const items = this.cartService.getCartItemsValue();
+
+      const orderItems: OrderItem[] = items.map(item => {
+        const product = new Product(item.id, item.name, item.description, item.price, item.quantity, item.image, item.category);
+        return new OrderItem(item.quantity, product);
+      });
+
+      const account = new Account(
+        Number(localStorage.getItem('userId')),
+        '',  // username is not available in local storage based on provided info
+        '',  // password is not available in local storage based on provided info
+        localStorage.getItem('firstName') || '',
+        localStorage.getItem('lastName') || '',
+        localStorage.getItem('email') || '',
+        localStorage.getItem('userRole') || ''
+      );
+
+      const orderDate = new Date(); // Kreiranje novog Date objekta za trenutni datum
+
+      const order = new Order(
+        orderDate,
+        'processing',
+        this.totalPrice,
+        0,
+        account,
+        orderItems
+      );
+
+      console.log('Prepared order data:', order);
+      return order;
+    }
 
   markAllAsTouched(formGroup: FormGroup) {
     Object.values(formGroup.controls).forEach(control => {

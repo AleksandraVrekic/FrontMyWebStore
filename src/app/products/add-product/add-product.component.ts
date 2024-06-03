@@ -42,7 +42,7 @@ export class AddProductComponent implements OnInit {
       description: ['', [Validators.required]],
       price: ['', [Validators.required, Validators.min(1)]],
       quantity: ['', [Validators.required, Validators.min(1)]],
-      categoryId: ['', [Validators.required]]
+      categoryId: ['', []]
     });
   }
 

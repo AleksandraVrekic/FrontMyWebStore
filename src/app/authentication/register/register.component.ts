@@ -26,9 +26,12 @@ export class RegisterComponent {
       addressId: ['', Validators.required]  // Ensure this is captured as a number if necessary
     });
   }
+
   onSubmit() {
+    console.log('Submit button clicked');
     if (this.registerForm.valid) {
       const { username, password, name, surname, email, phone, addressId } = this.registerForm.value;
+      console.log('Form is valid. Registration data:', this.registerForm.value);
 
       this.authService.register(username, password, name, surname, email, phone, addressId).subscribe(
         (response) => {
@@ -39,7 +42,19 @@ export class RegisterComponent {
           console.error('Registration failed:', error);
         }
       );
+    } else {
+      console.error('Form is not valid');
+      this.markAllAsTouched(this.registerForm);
     }
+  }
+  markAllAsTouched(formGroup: FormGroup) {
+    Object.values(formGroup.controls).forEach(control => {
+      if (control instanceof FormGroup) {
+        this.markAllAsTouched(control);
+      } else {
+        control.markAsTouched();
+      }
+    });
   }
 
 }
