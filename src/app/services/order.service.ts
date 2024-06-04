@@ -4,15 +4,32 @@ import { Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Subject, throwError } from 'rxjs';
 import { Order } from '../models/order';
+import { environment } from '../../environments/environment';
+import { PaymentInfo } from '../models/payment-info';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
   private baseUrl = 'http://localhost:8080/orders'; // Dodajte punu URL adresu
+
+  private paymentIntentUrl = environment.apiUrl + '/orders/payment-intent';
+
   private ordersChanged = new Subject<void>();
 
   constructor(private http: HttpClient) {}
+
+  createPaymentIntent(paymentInfo: PaymentInfo): Observable<any> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+    });
+    return this.http.post<PaymentInfo>(this.paymentIntentUrl, paymentInfo, { headers }).pipe(
+      catchError(error => {
+        console.error('Failed to create payment intent:', error);
+        return throwError(() => new Error('Failed to create payment intent, please try again later.'));
+      })
+    );
+  }
 
   getAllOrders(): Observable<any> {
     const headers = new HttpHeaders({
@@ -81,5 +98,6 @@ export class OrderService {
   getOrdersChanged(): Observable<void> {
     return this.ordersChanged.asObservable();
   }
+
 }
 

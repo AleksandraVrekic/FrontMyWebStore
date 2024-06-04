@@ -12,6 +12,8 @@ import { OrderService } from '../services/order.service';
 import { Order } from '../models/order';
 import { OrderItem } from '../models/order-item';
 import { Account } from '../models/account';
+import { PaymentInfo } from '../models/payment-info';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-checkout',
@@ -30,7 +32,14 @@ export class CheckoutComponent implements OnInit {
   creditCardYears: number[] = [0];
   creditCardMonths: number[] = [0];
 
+  // initialize Stripe API
+  stripe = Stripe(environment.stripePublishableKey);
+
+  paymentInfo: PaymentInfo = new PaymentInfo();
+  cardElement: any;
+  displayError: any = "";
   constructor(
+
     private formBuilder: FormBuilder,
     private formService: FormService,
     private cartService: CartService,
@@ -46,6 +55,11 @@ export class CheckoutComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+    // setup Stripe payment form
+    this.setupStripePaymentForm();
+
+
     this.checkoutFormGroup = this.formBuilder.group({
       customer: this.formBuilder.group({
         firstName: [localStorage.getItem('firstName') || ''],
@@ -67,12 +81,14 @@ export class CheckoutComponent implements OnInit {
         zipCode: ['']
       }),
       creditCard: this.formBuilder.group({
+        /*
         cardType: new FormControl('', [Validators.required]),
         nameOnCard: new FormControl('', [Validators.required, Validators.minLength(2), this.notOnlyWhitespace]),
         cardNumber: new FormControl('', [Validators.required, Validators.pattern('[0-9]{16}')]),
         securityCode: new FormControl('', [Validators.required, Validators.pattern('[0-9]{3}')]),
         expirationMonth: [''],
         expirationYear: ['']
+        */
       })
     });
 
@@ -80,6 +96,7 @@ export class CheckoutComponent implements OnInit {
       this.updateCartSummary(items);
     });
 
+    /*
     const startMonth: number = new Date().getMonth() + 1;
     console.log("startMonth: " + startMonth);
 
@@ -95,7 +112,35 @@ export class CheckoutComponent implements OnInit {
         console.log("Retrieved credit card years: " + JSON.stringify(data));
         this.creditCardYears = data;
       }
-    );
+    );*/
+  }
+
+  setupStripePaymentForm() {
+
+    // get a handle to stripe elements
+    var elements = this.stripe.elements();
+
+    // Create a card element ... and hide the zip-code field
+    this.cardElement = elements.create('card', { hidePostalCode: true });
+
+    // Add an instance of card UI component into the 'card-element' div
+    this.cardElement.mount('#card-element');
+
+    // Add event binding for the 'change' event on the card element
+    this.cardElement.on('change', (event: any) => {
+
+      // get a handle to card-errors element
+      this.displayError = document.getElementById('card-errors');
+
+      if (event.complete) {
+        this.displayError.textContent = "";
+      } else if (event.error) {
+        // show validation error to customer
+        this.displayError.textContent = event.error.message;
+      }
+
+    });
+
   }
 
   get creditCardType() { return this.checkoutFormGroup.get('creditCard.cardType'); }
@@ -104,35 +149,74 @@ export class CheckoutComponent implements OnInit {
   get creditCardSecurityCode() { return this.checkoutFormGroup.get('creditCard.securityCode'); }
 
   onSubmit() {
-    if (this.checkoutFormGroup.valid) {
-      const orderData = this.prepareOrderData();
-      this.orderService.createOrder(orderData).subscribe({
-        next: (order) => {
-          console.log('Order successfully created:', order);
-          this.snackBar.open('Order successfully created!', 'Close', {
-            duration: 3000
-          });
-          this.cartService.clearCart();
-          console.log('Cart items after clearing:', this.cartService.getCartItemsValue());
-          // Dodatni logovi za proveru
-          this.cartService.getCartItems().subscribe(items => {
-            console.log('Cart items after clearing (observable):', items);
+
+
+    // compute payment info
+    this.paymentInfo.amount = this.totalPrice * 100;
+    this.paymentInfo.currency = "USD";
+
+    // if valid form then
+    // - create payment intent
+    // - confirm card payment
+    // - place order
+
+
+    if (this.checkoutFormGroup.valid && this.displayError.textContent === "") {
+      // Step 1: Create the payment intent
+      this.orderService.createPaymentIntent(this.paymentInfo).subscribe(
+        (paymentIntentResponse) => {
+          // Step 2: Confirm the card payment
+          this.stripe.confirmCardPayment(paymentIntentResponse.client_secret,
+            {
+              payment_method: {
+                card: this.cardElement
+              }
+            }, { handleActions: false })
+          .then((result: any) => {
+            if (result.error) {
+              // Step 3: Inform the customer if there was an error
+              alert(`There was an error: ${result.error.message}`);
+            } else {
+              // Step 4: Place the order if the payment was successful
+              const orderData = this.prepareOrderData();
+              this.orderService.createOrder(orderData).subscribe({
+                next: (order) => {
+                  alert(`Your order has been received.\nOrder tracking number: ${order.orderTrackingNumber}`);
+                  this.snackBar.open('Order successfully created!', 'Close', {
+                    duration: 3000
+                  });
+                  this.cartService.clearCart();
+                  console.log('Cart items after clearing:', this.cartService.getCartItemsValue());
+                  // Additional logs for verification
+                  this.cartService.getCartItems().subscribe(items => {
+                    console.log('Cart items after clearing (observable):', items);
+                  });
+                },
+                error: (error) => {
+                  alert(`There was an error: ${error.message}`);
+                  console.error('Error creating order:', error);
+                  this.snackBar.open('Error creating order. Please try again.', 'Close', {
+                    duration: 3000
+                  });
+                }
+              });
+            }
           });
         },
-        error: (error) => {
-          console.error('Error creating order:', error);
-          this.snackBar.open('Error creating order. Please try again.', 'Close', {
+        error => {
+          console.error('Error creating payment intent:', error);
+          this.snackBar.open('Error processing payment. Please try again.', 'Close', {
             duration: 3000
           });
         }
-      });
+      );
     } else {
-      console.error('Form is not valid');
-      this.markAllAsTouched(this.checkoutFormGroup);
+      this.checkoutFormGroup.markAllAsTouched();
       this.snackBar.open('Please fill all required fields correctly!', 'Close', {
         duration: 3000
       });
     }
+
   }
 
     // Metod koji priprema podatke za narudžbinu
@@ -180,6 +264,7 @@ export class CheckoutComponent implements OnInit {
     });
   }
 
+  /*
   handleMonthsAndYears() {
     const creditCardFormGroup = this.checkoutFormGroup.get('creditCard');
 
@@ -208,6 +293,7 @@ export class CheckoutComponent implements OnInit {
       }
     );
   }
+  */
 
   updateCartSummary(items: Product[]): void {
     this.totalPrice = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
