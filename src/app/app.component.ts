@@ -7,6 +7,8 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CartComponent } from './cart/cart.component';
+import { RegisterComponent } from './authentication/register/register.component';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +18,15 @@ import { CartComponent } from './cart/cart.component';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  constructor(private router: Router, private dialog: MatDialog,) {}
+
+  isAdmin: boolean = false;
+
+  constructor(private router: Router, private dialog: MatDialog,private authService: AuthService) {}
+
+  ngOnInit() {
+    this.isAdmin = this.authService.isAdmin();
+  }
+
 
   navigateToLogin() {
     this.router.navigate(['auth/login']);
@@ -39,5 +49,15 @@ export class AppComponent {
     });
   }
 
+  openAddStaffDialog(): void {
+    this.dialog.open(RegisterComponent, {
+      width: '400px', // Možete prilagoditi širinu dijaloga prema potrebi
+      data: {} // Ovde možete proslediti podatke ako je potrebno
+    });
+  }
+
+  navigateToAdmin() {
+    this.router.navigate(['/admin']); // Nova metoda za navigaciju na Admin rutu
+  }
   title = 'my-web-shop';
 }

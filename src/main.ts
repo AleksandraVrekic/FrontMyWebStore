@@ -10,6 +10,7 @@ import { ProductDetailsComponent } from './app/products/product-details/product-
 import { RegisterComponent } from './app/authentication/register/register.component';
 import { EditProductComponent } from './app/products/edit-product/edit-product.component';
 import { CartComponent } from './app/cart/cart.component';
+import { TransactionComponent } from './app/transactions/transaction/transaction.component';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -22,6 +23,7 @@ bootstrapApplication(AppComponent, {
       { path: 'auth', loadChildren: () => import('./app/authentication/authentication.module').then(m => m.AuthenticationModule) },
       { path: 'auth/login', loadComponent: () => import('./app/authentication/login/login.component').then(m => m.LoginComponent) },
       { path: 'auth/register', loadComponent: () => import('./app/authentication/register/register.component').then(m => RegisterComponent) },
+      { path: 'admin', component: TransactionComponent },
       { path: 'cart', component: CartComponent },
     ])
   ]

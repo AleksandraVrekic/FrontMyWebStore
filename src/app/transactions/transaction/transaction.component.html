@@ -1,0 +1,26 @@
+<!-- admin.component.html -->
+<div class="container">
+  <h2>Transactions</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Product ID</th>
+        <th>Amount</th>
+        <th>Quantity</th>
+        <th>Customer Email</th>
+        <th>Currency</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let transaction of transactions">
+        <td>{{ transaction.id }}</td>
+        <td>{{ transaction.productId }}</td>
+        <td>{{ transaction.amount }}</td>
+        <td>{{ transaction.quantity }}</td>
+        <td>{{ transaction.customerEmail }}</td>
+        <td>{{ transaction.currency }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

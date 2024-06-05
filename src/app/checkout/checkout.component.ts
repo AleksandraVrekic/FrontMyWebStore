@@ -14,6 +14,7 @@ import { OrderItem } from '../models/order-item';
 import { Account } from '../models/account';
 import { PaymentInfo } from '../models/payment-info';
 import { environment } from '../../environments/environment';
+import { CartItem } from '../models/cart-item';
 
 @Component({
   selector: 'app-checkout',
@@ -55,10 +56,8 @@ export class CheckoutComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
     // setup Stripe payment form
     this.setupStripePaymentForm();
-
 
     this.checkoutFormGroup = this.formBuilder.group({
       customer: this.formBuilder.group({
@@ -95,116 +94,77 @@ export class CheckoutComponent implements OnInit {
     this.cartService.getCartItems().subscribe(items => {
       this.updateCartSummary(items);
     });
-
-    /*
-    const startMonth: number = new Date().getMonth() + 1;
-    console.log("startMonth: " + startMonth);
-
-    this.formService.getCreditCardMonths(startMonth).subscribe(
-      data => {
-        console.log("Retrieved credit card months: " + JSON.stringify(data));
-        this.creditCardMonths = data;
-      }
-    );
-
-    this.formService.getCreditCardYears().subscribe(
-      data => {
-        console.log("Retrieved credit card years: " + JSON.stringify(data));
-        this.creditCardYears = data;
-      }
-    );*/
   }
 
   setupStripePaymentForm() {
-
-    // get a handle to stripe elements
     var elements = this.stripe.elements();
-
-    // Create a card element ... and hide the zip-code field
     this.cardElement = elements.create('card', { hidePostalCode: true });
-
-    // Add an instance of card UI component into the 'card-element' div
     this.cardElement.mount('#card-element');
-
-    // Add event binding for the 'change' event on the card element
     this.cardElement.on('change', (event: any) => {
-
-      // get a handle to card-errors element
       this.displayError = document.getElementById('card-errors');
-
       if (event.complete) {
         this.displayError.textContent = "";
       } else if (event.error) {
-        // show validation error to customer
         this.displayError.textContent = event.error.message;
       }
-
     });
-
   }
 
-  get creditCardType() { return this.checkoutFormGroup.get('creditCard.cardType'); }
-  get creditCardNameOnCard() { return this.checkoutFormGroup.get('creditCard.nameOnCard'); }
-  get creditCardNumber() { return this.checkoutFormGroup.get('creditCard.cardNumber'); }
-  get creditCardSecurityCode() { return this.checkoutFormGroup.get('creditCard.securityCode'); }
-
   onSubmit() {
+    const cartItems = this.cartService.getCartItemsValue();
+    if (cartItems.length === 0) {
+      this.snackBar.open('Your cart is empty!', 'Close', {
+        duration: 3000
+      });
+      return;
+    }
 
+    this.totalPrice = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
-    // compute payment info
-    this.paymentInfo.amount = this.totalPrice * 100;
-    this.paymentInfo.currency = "USD";
+    this.paymentInfo.amount = this.totalPrice * 100; // Ukupan iznos za naplatu
+    this.paymentInfo.currency = "USD"; // Valuta
 
-    // if valid form then
-    // - create payment intent
-    // - confirm card payment
-    // - place order
+    // Map Product to CartItem
+    this.paymentInfo.items = cartItems.map(item => {
+      return new CartItem(item.id.toString(), item.quantity, item.price);
+    });
 
+    this.paymentInfo.customerEmail = this.checkoutFormGroup.get('customer.email')?.value; // Email korisnika iz forme
 
     if (this.checkoutFormGroup.valid && this.displayError.textContent === "") {
-      // Step 1: Create the payment intent
       this.orderService.createPaymentIntent(this.paymentInfo).subscribe(
         (paymentIntentResponse) => {
-          // Step 2: Confirm the card payment
-          this.stripe.confirmCardPayment(paymentIntentResponse.client_secret,
-            {
-              payment_method: {
-                card: this.cardElement
-              }
-            }, { handleActions: false })
-          .then((result: any) => {
+          this.stripe.confirmCardPayment(paymentIntentResponse.client_secret, {
+            payment_method: {
+              card: this.cardElement,
+            }
+          }).then((result: any) => {
             if (result.error) {
-              // Step 3: Inform the customer if there was an error
               alert(`There was an error: ${result.error.message}`);
             } else {
-              // Step 4: Place the order if the payment was successful
-              const orderData = this.prepareOrderData();
-              this.orderService.createOrder(orderData).subscribe({
-                next: (order) => {
-                  alert(`Your order has been received.\nOrder tracking number: ${order.orderTrackingNumber}`);
-                  this.snackBar.open('Order successfully created!', 'Close', {
-                    duration: 3000
-                  });
-                  this.cartService.clearCart();
-                  console.log('Cart items after clearing:', this.cartService.getCartItemsValue());
-                  // Additional logs for verification
-                  this.cartService.getCartItems().subscribe(items => {
-                    console.log('Cart items after clearing (observable):', items);
-                  });
-                },
-                error: (error) => {
-                  alert(`There was an error: ${error.message}`);
-                  console.error('Error creating order:', error);
-                  this.snackBar.open('Error creating order. Please try again.', 'Close', {
-                    duration: 3000
-                  });
-                }
-              });
+              if (result.paymentIntent.status === 'succeeded') {
+                this.showSuccessMessage();
+                const orderData = this.prepareOrderData();
+                this.orderService.createOrder(orderData).subscribe({
+                  next: (order) => {
+                    alert(`Your order has been received.\nOrder tracking number: ${order.orderTrackingNumber}`);
+                    this.snackBar.open('Order successfully created!', 'Close', {
+                      duration: 3000
+                    });
+                    this.cartService.clearCart();
+                  },
+                  error: (error) => {
+                    alert(`There was an error: ${error.message}`);
+                    this.snackBar.open('Error creating order. Please try again.', 'Close', {
+                      duration: 3000
+                    });
+                  }
+                });
+              }
             }
           });
         },
         error => {
-          console.error('Error creating payment intent:', error);
           this.snackBar.open('Error processing payment. Please try again.', 'Close', {
             duration: 3000
           });
@@ -216,7 +176,6 @@ export class CheckoutComponent implements OnInit {
         duration: 3000
       });
     }
-
   }
 
     // Metod koji priprema podatke za narudžbinu
@@ -306,6 +265,7 @@ export class CheckoutComponent implements OnInit {
     }
     return null;
   }
+
 }
 
 

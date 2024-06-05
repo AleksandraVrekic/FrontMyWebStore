@@ -54,6 +54,18 @@ export class AuthService {
     return this.http.post(`${this.baseUrl}/register/customer`, registrationData, { responseType: 'text' });
   }
 
+  registerStaff(username: string, password: string, firstName: string, lastName: string, email: string, position: string): Observable<any> {
+    const registrationData = {
+      username,
+      password,
+      firstName,
+      lastName,
+      email,
+      position
+    };
+    return this.http.post(`${this.baseUrl}/register/staff`, registrationData, { responseType: 'text' });
+  }
+
   logout(): void {
     this.clearToken();
     this.loggedIn.next(false);  // Notify subscribers that user is logged out
