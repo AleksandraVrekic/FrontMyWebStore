@@ -1,26 +1,15 @@
-<!-- admin.component.html -->
-<div class="container">
-  <h2>Transactions</h2>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Product ID</th>
-        <th>Amount</th>
-        <th>Quantity</th>
-        <th>Customer Email</th>
-        <th>Currency</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let transaction of transactions">
-        <td>{{ transaction.id }}</td>
-        <td>{{ transaction.productId }}</td>
-        <td>{{ transaction.amount }}</td>
-        <td>{{ transaction.quantity }}</td>
-        <td>{{ transaction.customerEmail }}</td>
-        <td>{{ transaction.currency }}</td>
-      </tr>
-    </tbody>
-  </table>
+<div *ngFor="let transaction of transactions" class="transaction">
+  <h3>Transaction ID: {{ transaction.id }}</h3>
+  <p>Customer Email: {{ transaction.customerEmail }}</p>
+  <p>Currency: {{ transaction.currency }}</p>
+  <p>Total Amount: {{ transaction.amount | currency:transaction.currency }}</p>
+  <div *ngIf="transaction.items && transaction.items.length > 0">
+    <h4>Items:</h4>
+    <ul>
+      <li *ngFor="let item of transaction.items">
+        <p>Product ID: {{ item.productId }}</p>
+        <p>Quantity: {{ item.quantity }}</p>
+      </li>
+    </ul>
+  </div>
 </div>

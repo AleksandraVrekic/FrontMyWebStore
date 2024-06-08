@@ -9,6 +9,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CartComponent } from './cart/cart.component';
 import { RegisterComponent } from './authentication/register/register.component';
 import { AuthService } from './services/auth.service';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -19,12 +20,25 @@ import { AuthService } from './services/auth.service';
 })
 export class AppComponent {
 
-  isAdmin: boolean = false;
+  isLoggedIn$: Observable<boolean>;
 
-  constructor(private router: Router, private dialog: MatDialog,private authService: AuthService) {}
+  isAdmin: boolean = false;
+  private roleSubscription: Subscription | undefined;
+
+  constructor(private router: Router, private dialog: MatDialog,private authService: AuthService) {
+    this.isLoggedIn$ = this.authService.isLoggedIn;
+  }
 
   ngOnInit() {
-    this.isAdmin = this.authService.isAdmin();
+    this.roleSubscription = this.authService.userRole$.subscribe(role => {
+      this.isAdmin = (role === 'ADMIN');
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.roleSubscription) {
+      this.roleSubscription.unsubscribe();
+    }
   }
 
 
@@ -51,13 +65,33 @@ export class AppComponent {
 
   openAddStaffDialog(): void {
     this.dialog.open(RegisterComponent, {
-      width: '400px', // Možete prilagoditi širinu dijaloga prema potrebi
-      data: {} // Ovde možete proslediti podatke ako je potrebno
+      width: '400px',
+      data: {}
     });
   }
 
   navigateToAdmin() {
     this.router.navigate(['/admin']); // Nova metoda za navigaciju na Admin rutu
   }
+
   title = 'my-web-shop';
+
+  navigateToStaff() {
+    this.router.navigate(['/admin/staff']);
+  }
+
+  navigateToProfile() {
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      this.router.navigate([`/profile`, userId]);
+    }
+  }
+
+  navigateToOrders(): void {
+    if (this.authService.isAdmin()) {
+      this.router.navigate(['/orders']);
+    } else {
+      this.router.navigate(['/customer/orders']);
+    }
+  }
 }

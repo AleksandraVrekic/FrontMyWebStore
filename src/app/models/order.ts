@@ -2,7 +2,7 @@ import { Account } from "./account";
 import { OrderItem } from "./order-item";
 
 export class Order {
-  orderId?: number;
+  orderId: number | null;
   orderDate: Date;
   orderStatus: string;
   totalPrice: number;
@@ -11,6 +11,7 @@ export class Order {
   orderItems: OrderItem[];
 
   constructor(
+    orderId: number | null,
     orderDate: Date,
     orderStatus: string,
     totalPrice: number,
@@ -18,6 +19,7 @@ export class Order {
     account: Account,
     orderItems: OrderItem[]
   ) {
+    this.orderId = orderId;
     this.orderDate = orderDate;
     this.orderStatus = orderStatus;
     this.totalPrice = totalPrice;
@@ -26,4 +28,3 @@ export class Order {
     this.orderItems = orderItems;
   }
 }
-

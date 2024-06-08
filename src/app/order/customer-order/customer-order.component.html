@@ -1,0 +1,23 @@
+<div *ngFor="let order of orders" class="order-card">
+  <div class="order-header">
+    <h3>Order ID: {{ order.orderId }}</h3>
+    <p>Order Date: {{ displayOrderDate(order) }}</p>
+    <p>Order Status: {{ order.orderStatus }}</p>
+  </div>
+  <div class="order-summary">
+    <p>Total Price: {{ order.totalPrice | currency }}</p>
+  </div>
+  <div *ngIf="order.orderItems && order.orderItems.length > 0" class="order-items">
+    <h4>Products:</h4>
+    <ul>
+      <li *ngFor="let item of order.orderItems" class="product-item">
+        <p><strong>Product Name:</strong> {{ item.product.name }}</p>
+        <p><strong>Description:</strong> {{ item.product.description }}</p>
+        <p><strong>Price:</strong> {{ item.product.price | currency }}</p>
+        <p><strong>Quantity:</strong> {{ item.quantity }}</p>
+      </li>
+    </ul>
+  </div>
+</div>
+
+

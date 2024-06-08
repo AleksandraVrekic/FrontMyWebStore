@@ -1,0 +1,51 @@
+<h2>Add Staff</h2>
+<form [formGroup]="addStaffForm" (ngSubmit)="save()">
+  <div class="form-group">
+    <label for="name">First Name:</label>
+    <input id="name" formControlName="name" class="form-control">
+    <div *ngIf="addStaffForm.get('name')?.invalid && addStaffForm.get('name')?.touched" class="error">
+      First Name is required.
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="surname">Last Name:</label>
+    <input id="surname" formControlName="surname" class="form-control">
+    <div *ngIf="addStaffForm.get('surname')?.invalid && addStaffForm.get('surname')?.touched" class="error">
+      Last Name is required.
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="email">Email:</label>
+    <input id="email" formControlName="email" type="email" class="form-control">
+    <div *ngIf="addStaffForm.get('email')?.invalid && addStaffForm.get('email')?.touched" class="error">
+      A valid email is required.
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="position">Position:</label>
+    <select id="position" formControlName="position" class="form-control">
+      <option *ngFor="let pos of positions" [value]="pos">{{ pos }}</option>
+    </select>
+    <div *ngIf="addStaffForm.get('position')?.invalid && addStaffForm.get('position')?.touched" class="error">
+      Position is required.
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="userName">Username:</label>
+    <input id="userName" formControlName="userName" class="form-control">
+    <div *ngIf="addStaffForm.get('userName')?.invalid && addStaffForm.get('userName')?.touched" class="error">
+      Username is required.
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="password">Password:</label>
+    <input id="password" formControlName="password" type="password" class="form-control">
+    <div *ngIf="addStaffForm.get('password')?.invalid && addStaffForm.get('password')?.touched" class="error">
+      Password is required and must be at least 6 characters long.
+    </div>
+  </div>
+  <button type="submit" [disabled]="addStaffForm.invalid" class="btn btn-primary">Save</button>
+  <button type="button" (click)="close()" class="btn btn-secondary">Cancel</button>
+</form>

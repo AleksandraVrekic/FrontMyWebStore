@@ -38,9 +38,15 @@
           <label for="phone">Phone:</label>
           <input id="phone" type="text" formControlName="phone" />
         </div>
-        <div>
-          <label for="addressId">Address ID:</label>
-          <input id="addressId" type="number" formControlName="addressId" />
+        <div formGroupName="address">
+          <label for="street">Street:</label>
+          <input id="street" type="text" formControlName="street" />
+          <label for="city">City:</label>
+          <input id="city" type="text" formControlName="city" />
+          <label for="country">Country:</label>
+          <input id="country" type="text" formControlName="country" />
+          <label for="zip">ZIP Code:</label>
+          <input id="zip" type="text" formControlName="zip" />
         </div>
         <button type="submit">Register</button>
       </form>

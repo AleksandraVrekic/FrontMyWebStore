@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
@@ -19,6 +19,14 @@ export class OrderService {
 
   constructor(private http: HttpClient) {}
 
+  getOrdersForCustomer(customerId: number): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.baseUrl}/customer/${customerId}`);
+  }
+
+  getAllOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(this.baseUrl);
+  }
+
   createPaymentIntent(paymentInfo: PaymentInfo): Observable<any> {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -30,7 +38,7 @@ export class OrderService {
       })
     );
   }
-
+  /*
   getAllOrders(): Observable<any> {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -40,8 +48,8 @@ export class OrderService {
         console.error('Failed to fetch orders:', error);
         return throwError(() => new Error('Failed to fetch orders, please try again later.'));
       })
-    );
-  }
+    );*/
+
 
   getOrderById(id: number): Observable<any> {
     const headers = new HttpHeaders({
@@ -99,5 +107,17 @@ export class OrderService {
     return this.ordersChanged.asObservable();
   }
 
+    // Method to update the status of an order
+  updateOrderStatus(orderId: number, status: string): Observable<Order> {
+    return this.http.put<Order>(`${this.baseUrl}/${orderId}/status`, { status });
+  }
+
+  getCustomerOrders(accountId: number): Observable<Order[]> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+    });
+    return this.http.get<Order[]>(`${this.baseUrl}/customer/${accountId}`, { headers });
+  }
 }
+
 

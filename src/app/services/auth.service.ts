@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -8,15 +9,24 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 export class AuthService {
   private baseUrl = 'http://localhost:8080/auth';
   private loggedIn = new BehaviorSubject<boolean>(this.hasToken());
+  private userRoleSubject = new BehaviorSubject<string | null>(this.getRole());
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,private router: Router) {}
 
   get isLoggedIn(): Observable<boolean> {
     return this.loggedIn.asObservable();
   }
 
+  get userRole$(): Observable<string | null> {
+    return this.userRoleSubject.asObservable();
+  }
+
   private hasToken(): boolean {
     return !!localStorage.getItem('authToken');
+  }
+
+  public getRole(): string | null {
+    return localStorage.getItem('userRole');
   }
 
   login(username: string, password: string): Observable<any> {
@@ -25,6 +35,7 @@ export class AuthService {
         tap(response => {
           this.saveTokenAndUserData(response.token, username, response.firstName, response.lastName, response.email, response.role, response.Id);
           this.loggedIn.next(true);
+          this.userRoleSubject.next(response.role); // Notify about role change
         })
       );
   }
@@ -36,10 +47,10 @@ export class AuthService {
     localStorage.setItem('lastName', lastName);
     localStorage.setItem('email', email);
     localStorage.setItem('userRole', role);
-    localStorage.setItem('userId', id);  // Dodavanje userId u localStorage
+    localStorage.setItem('userId', id);  // Add userId to localStorage
   }
 
-  register(username: string, password: string, name: string, surname: string, email: string, phone: string, addressId: number): Observable<any> {
+  register(username: string, password: string, name: string, surname: string, email: string, phone: string, address: {street: string, city: string, country: string, zip: string}): Observable<any> {
     const registrationData = {
       username,
       password,
@@ -47,21 +58,25 @@ export class AuthService {
       surname,
       email,
       phone,
-      addressId,
+      street: address.street,
+      city: address.city,
+      country: address.country,
+      zip: address.zip,
       userRole: 'CUSTOMER' // Assuming role needs to be sent as well
     };
     console.log('Sending registration data:', registrationData);
-    return this.http.post(`${this.baseUrl}/register/customer`, registrationData, { responseType: 'text' });
+    return this.http.post(`${this.baseUrl}/register/customer`, registrationData, { responseType: 'json' });
   }
 
-  registerStaff(username: string, password: string, firstName: string, lastName: string, email: string, position: string): Observable<any> {
+  registerStaff(staff: { userName: string; password: string; name: string; surname: string; email: string; position: string; role: string }): Observable<any> {
     const registrationData = {
-      username,
-      password,
-      firstName,
-      lastName,
-      email,
-      position
+      userName: staff.userName,
+      password: staff.password,
+      name: staff.name,
+      surname: staff.surname,
+      email: staff.email,
+      position: staff.position,
+      role: staff.role // Set role to ADMIN programmatically
     };
     return this.http.post(`${this.baseUrl}/register/staff`, registrationData, { responseType: 'text' });
   }
@@ -69,6 +84,8 @@ export class AuthService {
   logout(): void {
     this.clearToken();
     this.loggedIn.next(false);  // Notify subscribers that user is logged out
+    this.userRoleSubject.next(null); // Notify about role change
+    this.router.navigate(['/products']); // Redirect to products page on logout
   }
 
   clearToken(): void {
@@ -78,7 +95,7 @@ export class AuthService {
     localStorage.removeItem('lastName');
     localStorage.removeItem('email');
     localStorage.removeItem('userRole');
-    localStorage.removeItem('userId');  // Clearing userId when logging out
+    localStorage.removeItem('userId');  // Clear userId when logging out
   }
 
   isAdmin(): boolean {
@@ -91,10 +108,8 @@ export class AuthService {
 
   getAccountDetails() {
     return {
-      id: localStorage.getItem('userId') // Samo ID je potreban za narudžbinu
+      id: localStorage.getItem('userId') // Only ID is needed for order
     };
   }
+
 }
-
-
-

@@ -39,6 +39,9 @@ export class CheckoutComponent implements OnInit {
   paymentInfo: PaymentInfo = new PaymentInfo();
   cardElement: any;
   displayError: any = "";
+
+  isDisabled: boolean = false;
+
   constructor(
 
     private formBuilder: FormBuilder,
@@ -121,15 +124,16 @@ export class CheckoutComponent implements OnInit {
 
     this.totalPrice = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
-    this.paymentInfo.amount = this.totalPrice * 100; // Ukupan iznos za naplatu
-    this.paymentInfo.currency = "USD"; // Valuta
+    this.paymentInfo.amount = this.totalPrice * 100; // Total amount in cents
+    this.paymentInfo.currency = "USD"; // Currency
+    this.paymentInfo.items = cartItems.map(item => ({
+      productId: item.id.toString(),
+      quantity: item.quantity,
+      price: item.price
+    }));
+    this.paymentInfo.customerEmail = this.checkoutFormGroup.get('customer.email')?.value;
 
-    // Map Product to CartItem
-    this.paymentInfo.items = cartItems.map(item => {
-      return new CartItem(item.id.toString(), item.quantity, item.price);
-    });
-
-    this.paymentInfo.customerEmail = this.checkoutFormGroup.get('customer.email')?.value; // Email korisnika iz forme
+    this.isDisabled = true;
 
     if (this.checkoutFormGroup.valid && this.displayError.textContent === "") {
       this.orderService.createPaymentIntent(this.paymentInfo).subscribe(
@@ -141,6 +145,7 @@ export class CheckoutComponent implements OnInit {
           }).then((result: any) => {
             if (result.error) {
               alert(`There was an error: ${result.error.message}`);
+              this.isDisabled = false;
             } else {
               if (result.paymentIntent.status === 'succeeded') {
                 this.showSuccessMessage();
@@ -148,6 +153,7 @@ export class CheckoutComponent implements OnInit {
                 this.orderService.createOrder(orderData).subscribe({
                   next: (order) => {
                     alert(`Your order has been received.\nOrder tracking number: ${order.orderTrackingNumber}`);
+                    this.isDisabled = false;
                     this.snackBar.open('Order successfully created!', 'Close', {
                       duration: 3000
                     });
@@ -155,6 +161,7 @@ export class CheckoutComponent implements OnInit {
                   },
                   error: (error) => {
                     alert(`There was an error: ${error.message}`);
+                    this.isDisabled = false;
                     this.snackBar.open('Error creating order. Please try again.', 'Close', {
                       duration: 3000
                     });
@@ -178,40 +185,52 @@ export class CheckoutComponent implements OnInit {
     }
   }
 
-    // Metod koji priprema podatke za narudžbinu
-    prepareOrderData(): Order {
-      const formValues = this.checkoutFormGroup.value;
-      const items = this.cartService.getCartItemsValue();
 
-      const orderItems: OrderItem[] = items.map(item => {
-        const product = new Product(item.id, item.name, item.description, item.price, item.quantity, item.image, item.category);
-        return new OrderItem(item.quantity, product);
-      });
+  // Utility function to format date to "MM dd yyyy"
+  formatDate(date: Date): string {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // January is 0
+    const year = date.getFullYear();
 
-      const account = new Account(
-        Number(localStorage.getItem('userId')),
-        '',  // username is not available in local storage based on provided info
-        '',  // password is not available in local storage based on provided info
-        localStorage.getItem('firstName') || '',
-        localStorage.getItem('lastName') || '',
-        localStorage.getItem('email') || '',
-        localStorage.getItem('userRole') || ''
-      );
+    return `${month} ${day} ${year}`;
+  }
 
-      const orderDate = new Date(); // Kreiranje novog Date objekta za trenutni datum
+  // Method to prepare order data
+  prepareOrderData(): Order {
+    const formValues = this.checkoutFormGroup.value;
+    const items = this.cartService.getCartItemsValue();
 
-      const order = new Order(
-        orderDate,
-        'processing',
-        this.totalPrice,
-        0,
-        account,
-        orderItems
-      );
+    const orderItems: OrderItem[] = items.map(item => {
+      const product = new Product(item.id, item.name, item.description, item.price, item.quantity, item.image, item.category);
+      return new OrderItem(item.quantity, product);
+    });
 
-      console.log('Prepared order data:', order);
-      return order;
-    }
+    const account = new Account(
+      Number(localStorage.getItem('userId')),
+      '',  // username is not available in local storage based on provided info
+      '',  // password is not available in local storage based on provided info
+      localStorage.getItem('firstName') || '',
+      localStorage.getItem('lastName') || '',
+      localStorage.getItem('email') || '',
+      localStorage.getItem('userRole') || ''
+    );
+
+    const orderDate = new Date(); // Create new Date object for the current date
+
+    const order = new Order(
+      null, // Pass null for orderId
+      orderDate, // Pass the Date object
+      'Processing', // Set initial status to 'Proccesing'
+      this.totalPrice,
+      0,
+      account,
+      orderItems
+    );
+
+    console.log('Prepared order data:', order);
+    return order;
+  }
+
 
   markAllAsTouched(formGroup: FormGroup) {
     Object.values(formGroup.controls).forEach(control => {
@@ -222,37 +241,6 @@ export class CheckoutComponent implements OnInit {
       }
     });
   }
-
-  /*
-  handleMonthsAndYears() {
-    const creditCardFormGroup = this.checkoutFormGroup.get('creditCard');
-
-    if (!creditCardFormGroup) {
-      console.error("Credit card form group is not available.");
-      return;
-    }
-
-    const currentYear: number = new Date().getFullYear();
-    const selectedYear: number = Number(creditCardFormGroup.value.expirationYear);
-
-    let startMonth: number;
-    if (currentYear === selectedYear) {
-      startMonth = new Date().getMonth() + 1;
-    } else {
-      startMonth = 1;
-    }
-
-    this.formService.getCreditCardMonths(startMonth).subscribe(
-      data => {
-        console.log("Retrieved credit card months: " + JSON.stringify(data));
-        this.creditCardMonths = data;
-      },
-      error => {
-        console.error("Failed to retrieve credit card months:", error);
-      }
-    );
-  }
-  */
 
   updateCartSummary(items: Product[]): void {
     this.totalPrice = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);

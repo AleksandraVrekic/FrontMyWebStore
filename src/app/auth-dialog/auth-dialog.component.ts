@@ -39,9 +39,13 @@ export class AuthDialogComponent implements OnInit {
       username: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(6)]],
       phone: ['', Validators.required],
-      addressId: ['', Validators.required]  // Make sure this is being input as a number
+      address: this.fb.group({
+        street: ['', Validators.required],
+        city: ['', Validators.required],
+        country: ['', Validators.required],
+        zip: ['', Validators.required]
+      })
     });
-
   }
 
   ngOnInit() {
@@ -65,7 +69,6 @@ export class AuthDialogComponent implements OnInit {
       this.authService.login(username, password).subscribe(
         (response) => {
           console.log('Login successful, token:', response);
-          // Correct method call with all needed data
           this.authService.saveTokenAndUserData(response.token, username, response.firstName, response.lastName, response.email, response.role, response.id);
           this.dialogRef.close();
           this.router.navigate(['/']);
@@ -79,12 +82,12 @@ export class AuthDialogComponent implements OnInit {
 
   onRegisterSubmit() {
     if (this.registerForm.valid) {
-      const { username, password, name, surname, email, phone, addressId } = this.registerForm.value;
-      this.authService.register(username, password, name, surname, email, phone, addressId).subscribe(
+      const { username, password, name, surname, email, phone, address } = this.registerForm.value;
+      this.authService.register(username, password, name, surname, email, phone, address).subscribe(
         (response) => {
           console.log('Registration successful:', response);
-          this.dialogRef.close(); // Assuming dialogRef is correctly defined somewhere in your component
-          this.router.navigate(['/login']); // Redirect to the login page
+          this.dialogRef.close();
+          this.router.navigate(['/login']);
         },
         (error) => {
           console.error('Registration failed:', error);
@@ -93,10 +96,9 @@ export class AuthDialogComponent implements OnInit {
     }
   }
 
-
   logout() {
     this.authService.logout();
     this.dialogRef.close();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/products']); // Redirect to the products page after logout
   }
 }

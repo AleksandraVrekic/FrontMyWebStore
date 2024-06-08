@@ -31,6 +31,7 @@
     <div *ngFor="let product of paginatedProducts" class="product">
       <h3>{{ product.name }}</h3>
       <p>Price: {{ product.price }}</p>
+      <p *ngIf="authService.isAdmin()">Quantity: {{ product.quantity }}</p>
       <a [routerLink]="['/products', product.id]">View Details</a>
       <button (click)="addToCart(product)">Add to Cart</button>
       <button *ngIf="authService.isAdmin()" (click)="deleteProduct(product.id)">Delete</button>
@@ -45,33 +46,46 @@
   </div>
 </div>
 
+
 <style>
-  .container {
-    display: flex;
-  }
+.product {
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+}
 
-  .sidebar {
-    width: 20%;
-    border-right: 1px solid #ccc;
-    padding-right: 10px;
-  }
+.product h3 {
+  margin: 0 0 10px;
+}
 
-  .content {
-    width: 80%;
-    padding-left: 10px;
-  }
+.product p {
+  margin: 0 0 5px;
+}
 
-  .product {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-bottom: 10px;
-  }
+.pagination button {
+  margin: 5px;
+}
 
-  .pagination {
-    margin-top: 20px;
-  }
+.pagination button.active {
+  font-weight: bold;
+  background-color: #007bff;
+  color: white;
+}
 
-  .pagination button.active {
-    font-weight: bold;
-  }
+.sidebar {
+  float: left;
+  width: 20%;
+}
+
+.content {
+  float: left;
+  width: 75%;
+  margin-left: 5%;
+}
+
+.container {
+  display: flex;
+}
+
 </style>
