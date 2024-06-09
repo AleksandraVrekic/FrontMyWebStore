@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   standalone: true,
@@ -12,51 +13,57 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./register.component.scss'],
   imports: [ReactiveFormsModule, CommonModule]
 })
-  export class RegisterComponent {
-    registerForm: FormGroup;
+export class RegisterComponent {
+  registerForm: FormGroup;
+  errorMessage: string | null = null;
+  usernameExistsError: string | null = null;
 
-    constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
-      this.registerForm = this.fb.group({
-        name: ['', Validators.required],
-        surname: ['', Validators.required],
-        email: ['', [Validators.required, Validators.email]],
-        username: ['', Validators.required],
-        password: ['', [Validators.required, Validators.minLength(6)]],
-        phone: ['', Validators.required],
-        address: this.fb.group({
-          street: ['', Validators.required],
-          city: ['', Validators.required],
-          country: ['', Validators.required],
-          zip: ['', Validators.required]
-        })
-      });
-    }
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
+    this.registerForm = this.fb.group({
+      name: ['', Validators.required],
+      surname: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      username: ['', Validators.required],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      phone: ['', Validators.required],
+      address: this.fb.group({
+        street: ['', Validators.required],
+        city: ['', Validators.required],
+        country: ['', Validators.required],
+        zip: ['', Validators.required]
+      })
+    });
+  }
 
-    onSubmit() {
-      if (this.registerForm.valid) {
-        const { username, password, name, surname, email, phone, address } = this.registerForm.value;
+  onSubmit() {
+    if (this.registerForm.valid) {
+      const { username, password, name, surname, email, phone, address } = this.registerForm.value;
 
-        this.authService.register(username, password, name, surname, email, phone, address).subscribe(
-          (response) => {
-            console.log('Registration successful:', response);
-            this.router.navigate(['/login']);  // Redirect to login or another appropriate route
-          },
-          (error) => {
-            console.error('Registration failed:', error);
+      this.authService.register(username, password, name, surname, email, phone, address).subscribe(
+        (response) => {
+          console.log('Registration successful:', response);
+          this.router.navigate(['/login']);  // Redirect to login or another appropriate route
+        },
+        (error: HttpErrorResponse) => {
+          console.error('Registration failed:', error);
+          if (error.status === 400 && error.error === 'Username already exists!') {
+            this.usernameExistsError = 'Username already exists!';
           }
-        );
-      } else {
-        this.markAllAsTouched(this.registerForm);
-      }
-    }
-
-    markAllAsTouched(formGroup: FormGroup) {
-      Object.values(formGroup.controls).forEach(control => {
-        if (control instanceof FormGroup) {
-          this.markAllAsTouched(control);
-        } else {
-          control.markAsTouched();
         }
-      });
+      );
+    } else {
+      this.markAllAsTouched(this.registerForm);
     }
   }
+
+  markAllAsTouched(formGroup: FormGroup) {
+    Object.values(formGroup.controls).forEach(control => {
+      if (control instanceof FormGroup) {
+        this.markAllAsTouched(control);
+      } else {
+        control.markAsTouched();
+      }
+    });
+  }
+}
+

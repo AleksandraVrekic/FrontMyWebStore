@@ -4,11 +4,13 @@ import { ActivatedRoute } from '@angular/router';
 import { Product } from '../../models/product-model';
 import { ProductService } from '../../services/product.service';
 import { CommonModule } from '@angular/common';
+import { CartService } from '../../services/cart.service';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [CommonModule],  // Only include standalone components, directives, and pipes here
+  imports: [CommonModule, MatSnackBarModule],  // Only include standalone components, directives, and pipes here
   templateUrl: './product-details.component.html',
   styleUrls: ['./product-details.component.scss']
 })
@@ -17,7 +19,11 @@ export class ProductDetailsComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,  // Correctly injected here
-    private productService: ProductService
+    private productService: ProductService,
+    private cartService: CartService,
+    private snackBar: MatSnackBar
+
+
   ) {}
 
   ngOnInit(): void {
@@ -27,5 +33,19 @@ export class ProductDetailsComponent implements OnInit {
         this.product = product;  // Set the product based on the fetched data
       });
     });
+  }
+
+  addToCart(product: Product): void {
+    const success = this.cartService.addToCart(product);
+    if (!success) {
+      this.snackBar.open('Cannot add more items than available in stock.', 'Close', {
+        duration: 3000,
+      });
+    }
+  }
+
+  canAddToCart(product: Product): boolean {
+    const cartItem = this.cartService.getCartItemsValue().find(item => item.id === product.id);
+    return cartItem ? cartItem.quantity < product.quantity : true;
   }
 }

@@ -7,7 +7,7 @@ import { AuthService } from '../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { Product } from '../models/product-model';
+import { Product, ProductClass } from '../models/product-model';
 import { OrderService } from '../services/order.service';
 import { Order } from '../models/order';
 import { OrderItem } from '../models/order-item';
@@ -15,6 +15,7 @@ import { Account } from '../models/account';
 import { PaymentInfo } from '../models/payment-info';
 import { environment } from '../../environments/environment';
 import { CartItem } from '../models/cart-item';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-checkout',
@@ -26,10 +27,8 @@ import { CartItem } from '../models/cart-item';
 export class CheckoutComponent implements OnInit {
 
   checkoutFormGroup!: FormGroup;
-
   totalPrice: number = 0;
   totalQuantity: number = 0;
-
   creditCardYears: number[] = [0];
   creditCardMonths: number[] = [0];
 
@@ -39,24 +38,17 @@ export class CheckoutComponent implements OnInit {
   paymentInfo: PaymentInfo = new PaymentInfo();
   cardElement: any;
   displayError: any = "";
-
   isDisabled: boolean = false;
 
   constructor(
-
     private formBuilder: FormBuilder,
     private formService: FormService,
     private cartService: CartService,
     private authService: AuthService,
     private snackBar: MatSnackBar,
     private orderService: OrderService,
+    private router: Router
   ) {}
-
-  showSuccessMessage(): void {
-    this.snackBar.open('Order successfully created!', 'Close', {
-      duration: 3000 // zatvara se nakon 3000 milisekundi
-    });
-  }
 
   ngOnInit(): void {
     // setup Stripe payment form
@@ -64,9 +56,16 @@ export class CheckoutComponent implements OnInit {
 
     this.checkoutFormGroup = this.formBuilder.group({
       customer: this.formBuilder.group({
-        firstName: [localStorage.getItem('firstName') || ''],
-        lastName: [localStorage.getItem('lastName') || ''],
-        email: [localStorage.getItem('email') || '']
+        firstName: [{ value: localStorage.getItem('firstName') || '', disabled: true }],
+        lastName: [{ value: localStorage.getItem('lastName') || '', disabled: true }],
+        email: [{ value: localStorage.getItem('email') || '', disabled: true }]
+      }),
+      customerAddress: this.formBuilder.group({
+        street: [{ value: localStorage.getItem('street') || '', disabled: true }],
+        city: [{ value: localStorage.getItem('city') || '', disabled: true }],
+        state: [{ value: localStorage.getItem('state') || '', disabled: true }],
+        country: [{ value: localStorage.getItem('country') || '', disabled: true }],
+        zipCode: [{ value: localStorage.getItem('zipCode') || '', disabled: true }]
       }),
       shippingAddress: this.formBuilder.group({
         street: [''],
@@ -82,16 +81,7 @@ export class CheckoutComponent implements OnInit {
         country: [''],
         zipCode: ['']
       }),
-      creditCard: this.formBuilder.group({
-        /*
-        cardType: new FormControl('', [Validators.required]),
-        nameOnCard: new FormControl('', [Validators.required, Validators.minLength(2), this.notOnlyWhitespace]),
-        cardNumber: new FormControl('', [Validators.required, Validators.pattern('[0-9]{16}')]),
-        securityCode: new FormControl('', [Validators.required, Validators.pattern('[0-9]{3}')]),
-        expirationMonth: [''],
-        expirationYear: ['']
-        */
-      })
+      creditCard: this.formBuilder.group({})
     });
 
     this.cartService.getCartItems().subscribe(items => {
@@ -111,6 +101,17 @@ export class CheckoutComponent implements OnInit {
         this.displayError.textContent = event.error.message;
       }
     });
+  }
+
+  editProfile() {
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      this.router.navigate([`/customers/edit/${userId}`]);
+    } else {
+      this.snackBar.open('User ID not found!', 'Close', {
+        duration: 3000
+      });
+    }
   }
 
   onSubmit() {
@@ -141,6 +142,9 @@ export class CheckoutComponent implements OnInit {
           this.stripe.confirmCardPayment(paymentIntentResponse.client_secret, {
             payment_method: {
               card: this.cardElement,
+              billing_details: {
+                email: this.paymentInfo.customerEmail, // Add email here
+              }
             }
           }).then((result: any) => {
             if (result.error) {
@@ -185,6 +189,11 @@ export class CheckoutComponent implements OnInit {
     }
   }
 
+  showSuccessMessage(): void {
+    this.snackBar.open('Order successfully created!', 'Close', {
+      duration: 3000
+    });
+  }
 
   // Utility function to format date to "MM dd yyyy"
   formatDate(date: Date): string {
@@ -201,7 +210,15 @@ export class CheckoutComponent implements OnInit {
     const items = this.cartService.getCartItemsValue();
 
     const orderItems: OrderItem[] = items.map(item => {
-      const product = new Product(item.id, item.name, item.description, item.price, item.quantity, item.image, item.category);
+      const product = new ProductClass(
+        item.id,
+        item.name,
+        item.description,
+        item.price,
+        item.quantity,
+        item.image,
+        item.category
+      );
       return new OrderItem(item.quantity, product);
     });
 
@@ -220,7 +237,7 @@ export class CheckoutComponent implements OnInit {
     const order = new Order(
       null, // Pass null for orderId
       orderDate, // Pass the Date object
-      'Processing', // Set initial status to 'Proccesing'
+      'Processing', // Set initial status to 'Processing'
       this.totalPrice,
       0,
       account,
@@ -230,7 +247,6 @@ export class CheckoutComponent implements OnInit {
     console.log('Prepared order data:', order);
     return order;
   }
-
 
   markAllAsTouched(formGroup: FormGroup) {
     Object.values(formGroup.controls).forEach(control => {
@@ -253,7 +269,4 @@ export class CheckoutComponent implements OnInit {
     }
     return null;
   }
-
 }
-
-

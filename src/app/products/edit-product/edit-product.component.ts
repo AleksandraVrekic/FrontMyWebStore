@@ -4,18 +4,22 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, catchError, of } from 'rxjs';
 import { ProductService } from '../../services/product.service';
 import { AuthService } from '../../services/auth.service';
+import { Category } from '../../models/category';
+import { CategoryService } from '../../services/category.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-edit-product',
   templateUrl: './edit-product.component.html',
   styleUrls: ['./edit-product.component.scss'],
   standalone: true,
-  imports: [ReactiveFormsModule]
+  imports: [ReactiveFormsModule, CommonModule]
 })
 export class EditProductComponent implements OnInit, OnDestroy {
   productForm: FormGroup;
-  productId: number = 0; // Default value, not ideal if productId should always be provided
+  productId: number = 0;
   isAdmin: boolean = false;
+  categories: Category[] = [];
   private authSubscription: Subscription = Subscription.EMPTY;
 
   constructor(
@@ -23,13 +27,15 @@ export class EditProductComponent implements OnInit, OnDestroy {
     private productService: ProductService,
     private authService: AuthService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private categoryService: CategoryService
   ) {
     this.productForm = this.fb.group({
       name: ['', Validators.required],
       description: ['', Validators.required],
       price: ['', [Validators.required, Validators.min(0)]],
-      quantity: [0, Validators.required]
+      quantity: [0, Validators.required],
+      category: [null, Validators.required]
     });
   }
 
@@ -40,11 +46,19 @@ export class EditProductComponent implements OnInit, OnDestroy {
     });
 
     this.productService.getProductById(this.productId).subscribe({
-      next: (product) => this.productForm.patchValue(product),
+      next: (product) => {
+        this.productForm.patchValue(product);
+        this.productForm.patchValue({ category: product.category });
+      },
       error: (err) => {
         console.error('Failed to fetch product:', err);
-        this.router.navigate(['/products']); // Redirect if product fetch fails
+        this.router.navigate(['/products']);
       }
+    });
+
+    this.categoryService.getAllCategories().subscribe({
+      next: (categories) => this.categories = categories,
+      error: (err) => console.error('Failed to fetch categories:', err)
     });
   }
 
@@ -73,4 +87,3 @@ export class EditProductComponent implements OnInit, OnDestroy {
     }
   }
 }
-

@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { MatDialogRef } from '@angular/material/dialog';
 import { ProductService } from '../../services/product.service';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatFormFieldControl, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 
@@ -12,6 +12,8 @@ import { CategoryService } from '../../services/category.service';
 import { Category } from '../../models/category';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
+import { Product, ProductFormData } from '../../models/product-model';
+
 @Component({
   selector: 'app-add-product',
   standalone: true,
@@ -19,7 +21,6 @@ import { MatOptionModule } from '@angular/material/core';
     ReactiveFormsModule,
     CommonModule,
     MatButtonModule,
-    MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatOptionModule
@@ -30,6 +31,7 @@ import { MatOptionModule } from '@angular/material/core';
 export class AddProductComponent implements OnInit {
   productForm: FormGroup;
   categories: Category[] = [];
+  selectedFile: File | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -42,7 +44,7 @@ export class AddProductComponent implements OnInit {
       description: ['', [Validators.required]],
       price: ['', [Validators.required, Validators.min(1)]],
       quantity: ['', [Validators.required, Validators.min(1)]],
-      categoryId: ['', []]
+      categoryName: ['', [Validators.required]]
     });
   }
 
@@ -62,21 +64,51 @@ export class AddProductComponent implements OnInit {
     });
   }
 
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length) {
+      this.selectedFile = input.files[0];
+    }
+  }
+
   onSubmit(): void {
     if (this.productForm.valid) {
-      this.productService.createProduct(this.productForm.value).subscribe({
-        next: (product) => {
-          console.log('Product added successfully:', product);
-          this.dialogRef.close(); // Close the dialog on successful add
-        },
-        error: (error) => {
-          console.error('Failed to add product:', error.message);
+      const formValue = this.productForm.value;
+      const selectedCategory = this.categories.find(category => category.categoryName === formValue.categoryName);
+
+      if (selectedCategory) {
+        const productData: ProductFormData = {
+          name: formValue.name,
+          description: formValue.description,
+          price: formValue.price,
+          quantity: formValue.quantity,
+          category: {
+            categoryId: selectedCategory.categoryId,
+            categoryName: selectedCategory.categoryName
+          }
+        };
+
+        const formData = new FormData();
+        formData.append('product', JSON.stringify(productData));
+        if (this.selectedFile) {
+          formData.append('image', this.selectedFile);
         }
-      });
+
+        this.productService.createProduct(formData).subscribe({
+          next: (product) => {
+            console.log('Product added successfully:', product);
+            this.dialogRef.close(); // Close the dialog on successful add
+          },
+          error: (error) => {
+            console.error('Failed to add product:', error.message);
+          }
+        });
+      } else {
+        console.error('Selected category not found');
+      }
     } else {
       console.error('Form is not valid:', this.productForm.errors);
     }
   }
+
 }
-
-

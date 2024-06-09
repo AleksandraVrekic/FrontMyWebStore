@@ -1,5 +1,7 @@
 <div *ngIf="product" class="product-details">
   <h2>{{ product.name }}</h2>
+  <img *ngIf="product.image" [src]="'/uploads/' + product.image" alt="{{ product.name }}" />
   <p>{{ product.description }}</p>
   <p>Price: {{ product.price }}</p>
+  <button (click)="addToCart(product)" [disabled]="!canAddToCart(product)">Add to Cart</button>
 </div>

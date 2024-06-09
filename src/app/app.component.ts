@@ -10,11 +10,13 @@ import { CartComponent } from './cart/cart.component';
 import { RegisterComponent } from './authentication/register/register.component';
 import { AuthService } from './services/auth.service';
 import { Observable, Subscription } from 'rxjs';
+import { MatToolbarModule } from '@angular/material/toolbar';
+
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, MatButtonModule, ReactiveFormsModule],
+  imports: [RouterOutlet, CommonModule, MatButtonModule, ReactiveFormsModule,MatToolbarModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
@@ -41,6 +43,9 @@ export class AppComponent {
     }
   }
 
+  navigateToProducts() {
+    this.router.navigate(['/products']);
+  }
 
   navigateToLogin() {
     this.router.navigate(['auth/login']);
@@ -52,15 +57,13 @@ export class AppComponent {
   openAuthDialog(): void {
     this.dialog.open(AuthDialogComponent, {
       width: '300px',
-      disableClose: true,
+      disableClose: false,
       autoFocus: true
     });
   }
 
-  openCartDialog() {
-    this.dialog.open(CartComponent, {
-      width: '400px'
-    });
+  navigateToCart() {
+    this.router.navigate(['/cart']);
   }
 
   openAddStaffDialog(): void {

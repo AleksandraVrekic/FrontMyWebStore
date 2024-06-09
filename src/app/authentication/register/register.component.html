@@ -1,39 +1,71 @@
 <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
   <div>
-    <label for="name">Name:</label>
-    <input id="name" type="text" formControlName="name" />
+    <label for="name">Name</label>
+    <input id="name" formControlName="name" required>
+    <div *ngIf="registerForm.get('name')?.hasError('required') && registerForm.get('name')?.touched">Name is required</div>
   </div>
+
   <div>
-    <label for="surname">Surname:</label>
-    <input id="surname" type="text" formControlName="surname" />
+    <label for="surname">Surname</label>
+    <input id="surname" formControlName="surname" required>
+    <div *ngIf="registerForm.get('surname')?.hasError('required') && registerForm.get('surname')?.touched">Surname is required</div>
   </div>
+
   <div>
-    <label for="email">Email:</label>
-    <input id="email" type="email" formControlName="email" />
+    <label for="email">Email</label>
+    <input id="email" formControlName="email" required>
+
+    <div *ngIf="registerForm.get('email')?.hasError('email') && registerForm.get('email')?.touched">Invalid email</div>
+    <div *ngIf="registerForm.get('email')?.hasError('emailExists') && registerForm.get('email')?.touched">Email already exists</div>
   </div>
+
   <div>
-    <label for="username">Username:</label>
-    <input id="username" type="text" formControlName="username" />
+    <label for="username">Username</label>
+    <input id="username" formControlName="username" />
+    <div *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.invalid">Username is required</div>
+    <div *ngIf="usernameExistsError">{{ usernameExistsError }}</div>
   </div>
+
   <div>
-    <label for="password">Password:</label>
-    <input id="password" type="password" formControlName="password" />
+    <label for="password">Password</label>
+    <input id="password" type="password" formControlName="password" required>
+    <div *ngIf="registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched">Password is required</div>
+    <div *ngIf="registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched">Password must be at least 6 characters</div>
   </div>
+
   <div>
-    <label for="phone">Phone:</label>
-    <input id="phone" type="text" formControlName="phone" />
+    <label for="phone">Phone</label>
+    <input id="phone" formControlName="phone" required>
+    <div *ngIf="registerForm.get('phone')?.hasError('required') && registerForm.get('phone')?.touched">Phone is required</div>
   </div>
+
   <div formGroupName="address">
-    <label for="street">Street:</label>
-    <input id="street" type="text" formControlName="street" />
-    <label for="city">City:</label>
-    <input id="city" type="text" formControlName="city" />
-    <label for="country">Country:</label>
-    <input id="country" type="text" formControlName="country" />
-    <label for="zip">ZIP Code:</label>
-    <input id="zip" type="text" formControlName="zip" />
+    <label for="street">Street</label>
+    <input id="street" formControlName="street" required>
+    <div *ngIf="registerForm.get('address.street')?.hasError('required') && registerForm.get('address.street')?.touched">Street is required</div>
+
+    <label for="city">City</label>
+    <input id="city" formControlName="city" required>
+    <div *ngIf="registerForm.get('address.city')?.hasError('required') && registerForm.get('address.city')?.touched">City is required</div>
+
+    <label for="country">Country</label>
+    <input id="country" formControlName="country" required>
+    <div *ngIf="registerForm.get('address.country')?.hasError('required') && registerForm.get('address.country')?.touched">Country is required</div>
+
+    <label for="zip">ZIP</label>
+    <input id="zip" formControlName="zip" required>
+    <div *ngIf="registerForm.get('address.zip')?.hasError('required') && registerForm.get('address.zip')?.touched">ZIP is required</div>
   </div>
-  <button type="submit">Register</button>
+
+  <button type="submit" [disabled]="registerForm.invalid">Register</button>
 </form>
 
+<style>
+  .error-message {
+    color: red;
+    margin-bottom: 10px;
+  }
+</style>
 

@@ -1,41 +1,50 @@
 <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
-  <mat-form-field appearance="fill">
-    <mat-label>Product Name</mat-label>
-    <input matInput formControlName="name" required>
-    <mat-error *ngIf="productForm.get('name')?.hasError('required')">Name is required</mat-error>
-    <mat-error *ngIf="productForm.get('name')?.hasError('minlength')">Name must be at least 3 characters</mat-error>
-  </mat-form-field>
+  <div>
+    <label for="name">Product Name</label>
+    <input id="name" formControlName="name" required>
+    <div *ngIf="productForm.get('name')?.hasError('required') && productForm.get('name')?.touched">Name is required</div>
+    <div *ngIf="productForm.get('name')?.hasError('minlength') && productForm.get('name')?.touched">Name must be at least 3 characters</div>
+  </div>
 
-  <mat-form-field appearance="fill">
-    <mat-label>Description</mat-label>
-    <textarea matInput formControlName="description" required></textarea>
-    <mat-error *ngIf="productForm.get('description')?.hasError('required')">Description is required</mat-error>
-  </mat-form-field>
+  <div>
+    <label for="description">Description</label>
+    <textarea id="description" formControlName="description" required></textarea>
+    <div *ngIf="productForm.get('description')?.hasError('required') && productForm.get('description')?.touched">Description is required</div>
+  </div>
 
-  <mat-form-field appearance="fill">
-    <mat-label>Price</mat-label>
-    <input matInput type="number" formControlName="price" required>
-    <mat-error *ngIf="productForm.get('price')?.hasError('required')">Price is required</mat-error>
-    <mat-error *ngIf="productForm.get('price')?.hasError('min')">Price must be at least 1</mat-error>
-  </mat-form-field>
+  <div>
+    <label for="price">Price</label>
+    <input id="price" type="number" formControlName="price" required>
+    <div *ngIf="productForm.get('price')?.hasError('required') && productForm.get('price')?.touched">Price is required</div>
+    <div *ngIf="productForm.get('price')?.hasError('min') && productForm.get('price')?.touched">Price must be at least 1</div>
+  </div>
 
-  <mat-form-field appearance="fill">
-    <mat-label>Quantity</mat-label>
-    <input matInput type="number" formControlName="quantity" required>
-    <mat-error *ngIf="productForm.get('quantity')?.hasError('required')">Quantity is required</mat-error>
-    <mat-error *ngIf="productForm.get('quantity')?.hasError('min')">Quantity must be at least 1</mat-error>
-  </mat-form-field>
+  <div>
+    <label for="quantity">Quantity</label>
+    <input id="quantity" type="number" formControlName="quantity" required>
+    <div *ngIf="productForm.get('quantity')?.hasError('required') && productForm.get('quantity')?.touched">Quantity is required</div>
+    <div *ngIf="productForm.get('quantity')?.hasError('min') && productForm.get('quantity')?.touched">Quantity must be at least 1</div>
+  </div>
 
-  <mat-form-field appearance="fill">
-    <mat-label>Category</mat-label>
-    <mat-select formControlName="categoryId">
-      <mat-option *ngFor="let category of categories" [value]="category.categoryId">{{ category.categoryName }}</mat-option>
-    </mat-select>
-    <mat-error *ngIf="productForm.get('categoryId')?.hasError('')">Category is required</mat-error>
-  </mat-form-field>
+  <div>
+    <label for="categoryName">Category</label>
+    <select id="categoryName" formControlName="categoryName" required>
+      <option *ngFor="let category of categories" [value]="category.categoryName">{{ category.categoryName }}</option>
+    </select>
+    <div *ngIf="productForm.get('categoryName')?.hasError('required') && productForm.get('categoryName')?.touched">Category is required</div>
+  </div>
 
-  <button mat-raised-button color="primary" type="submit" [disabled]="productForm.invalid">Add Product</button>
+  <div>
+    <label for="image">Product Image</label>
+    <input id="image" type="file" (change)="onFileSelected($event)">
+  </div>
+
+  <button type="submit" [disabled]="productForm.invalid">Add Product</button>
 </form>
+
+
+
+
 
 
 

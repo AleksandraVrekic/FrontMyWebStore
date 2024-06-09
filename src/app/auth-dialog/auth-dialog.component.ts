@@ -6,13 +6,16 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
+
 
 @Component({
   selector: 'app-auth-dialog',
   templateUrl: './auth-dialog.component.html',
   styleUrls: ['./auth-dialog.component.scss'],
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, MatButtonModule, MatDialogModule]
+  imports: [ReactiveFormsModule, CommonModule, MatButtonModule, MatDialogModule, MatIconModule]
 })
 export class AuthDialogComponent implements OnInit {
   loginForm: FormGroup;
@@ -25,7 +28,8 @@ export class AuthDialogComponent implements OnInit {
     private fb: FormBuilder,
     public authService: AuthService,
     private router: Router,
-    public dialogRef: MatDialogRef<AuthDialogComponent>
+    public dialogRef: MatDialogRef<AuthDialogComponent>,
+    private snackBar: MatSnackBar
   ) {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
@@ -70,13 +74,23 @@ export class AuthDialogComponent implements OnInit {
         (response) => {
           console.log('Login successful, token:', response);
           this.authService.saveTokenAndUserData(response.token, username, response.firstName, response.lastName, response.email, response.role, response.id);
+          this.snackBar.open('Login successful!', 'Close', {
+            duration: 3000,
+          });
           this.dialogRef.close();
           this.router.navigate(['/']);
         },
         (error) => {
           console.error('Login failed:', error);
+          this.snackBar.open('Invalid username or password', 'Close', {
+            duration: 3000,
+          });
         }
       );
+    } else {
+      this.snackBar.open('Please fill in all required fields', 'Close', {
+        duration: 3000,
+      });
     }
   }
 
@@ -86,13 +100,23 @@ export class AuthDialogComponent implements OnInit {
       this.authService.register(username, password, name, surname, email, phone, address).subscribe(
         (response) => {
           console.log('Registration successful:', response);
+          this.snackBar.open('Registration successful!', 'Close', {
+            duration: 3000,
+          });
           this.dialogRef.close();
           this.router.navigate(['/login']);
         },
         (error) => {
           console.error('Registration failed:', error);
+          this.snackBar.open('Registration failed. Please try again.', 'Close', {
+            duration: 3000,
+          });
         }
       );
+    } else {
+      this.snackBar.open('Please fill in all required fields', 'Close', {
+        duration: 3000,
+      });
     }
   }
 
@@ -100,5 +124,12 @@ export class AuthDialogComponent implements OnInit {
     this.authService.logout();
     this.dialogRef.close();
     this.router.navigate(['/products']); // Redirect to the products page after logout
+    this.snackBar.open('You have been logged out.', 'Close', {
+      duration: 3000,
+    });
+  }
+
+  closeDialog() {
+    this.dialogRef.close();
   }
 }

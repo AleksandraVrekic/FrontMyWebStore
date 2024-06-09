@@ -3,14 +3,12 @@
     <h1>Welcome to My Web Shop</h1>
     <nav>
       <ul>
-        <li><a routerLink="/products">Products</a></li>
-        <li><a routerLink="/orders">Orders</a></li>
-        <li><a routerLink="/customers">Customers</a></li>
+        <li><button (click)="navigateToProducts()">Products</button></li>
         <li><button (click)="openAuthDialog()">Nalog</button></li>
-        <li><button (click)="openCartDialog()">Korpa</button></li>
+        <li><button (click)="navigateToCart()">Korpa</button></li>
         <li *ngIf="isAdmin"><button (click)="navigateToAdmin()">Transakcije</button></li>
         <li *ngIf="isAdmin"><button (click)="navigateToStaff()">Zaposleni</button></li>
-        <li *ngIf="isLoggedIn$ | async"><button (click)="navigateToProfile()">Profil</button></li> <!-- Novo dugme za Profil -->
+        <li *ngIf="isLoggedIn$ | async"><button (click)="navigateToProfile()">Profil</button></li>
         <li *ngIf="isLoggedIn$ | async">
           <button (click)="navigateToOrders()">Porudžbine</button>
         </li>

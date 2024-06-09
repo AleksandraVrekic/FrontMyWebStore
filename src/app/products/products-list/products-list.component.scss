@@ -1,0 +1,51 @@
+.product {
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.product h3 {
+  margin: 0 0 10px;
+}
+
+.product p {
+  margin: 0 0 5px;
+}
+
+.product img.product-image {
+  width: 100%;  /* Adjust this as needed */
+  max-width: 300px; /* Set a maximum width */
+  height: auto;  /* Maintain aspect ratio */
+  display: block;
+  margin: 0 auto 10px auto;
+}
+
+.pagination button {
+  margin: 5px;
+}
+
+.pagination button.active {
+  font-weight: bold;
+  background-color: #007bff;
+  color: white;
+}
+
+.sidebar {
+  width: 20%;
+}
+
+.content {
+  width: 75%;
+  margin-left: 5%;
+}
+
+.container {
+  display: flex;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Adjusted column width */
+  grid-gap: 20px;
+}

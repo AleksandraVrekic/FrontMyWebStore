@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -11,7 +11,7 @@ export class AuthService {
   private loggedIn = new BehaviorSubject<boolean>(this.hasToken());
   private userRoleSubject = new BehaviorSubject<string | null>(this.getRole());
 
-  constructor(private http: HttpClient,private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   get isLoggedIn(): Observable<boolean> {
     return this.loggedIn.asObservable();
@@ -33,10 +33,11 @@ export class AuthService {
     return this.http.post<any>(`${this.baseUrl}/login`, { username, password })
       .pipe(
         tap(response => {
-          this.saveTokenAndUserData(response.token, username, response.firstName, response.lastName, response.email, response.role, response.Id);
-          this.loggedIn.next(true);
-          this.userRoleSubject.next(response.role); // Notify about role change
-        })
+          this.saveTokenAndUserData(response.token, username, response.firstName, response.lastName, response.email, response.role, response.id);
+          this.loggedIn.next(true); // Emit new login status
+          this.userRoleSubject.next(response.role); // Emit new role
+        }),
+        catchError(this.handleError)
       );
   }
 
@@ -47,7 +48,12 @@ export class AuthService {
     localStorage.setItem('lastName', lastName);
     localStorage.setItem('email', email);
     localStorage.setItem('userRole', role);
-    localStorage.setItem('userId', id);  // Add userId to localStorage
+    localStorage.setItem('userId', id);
+  }
+
+  private handleError(error: any): Observable<never> {
+    console.error('An error occurred:', error);
+    return throwError(error);
   }
 
   register(username: string, password: string, name: string, surname: string, email: string, phone: string, address: {street: string, city: string, country: string, zip: string}): Observable<any> {
@@ -62,7 +68,7 @@ export class AuthService {
       city: address.city,
       country: address.country,
       zip: address.zip,
-      userRole: 'CUSTOMER' // Assuming role needs to be sent as well
+      userRole: 'CUSTOMER'
     };
     console.log('Sending registration data:', registrationData);
     return this.http.post(`${this.baseUrl}/register/customer`, registrationData, { responseType: 'json' });
@@ -76,15 +82,15 @@ export class AuthService {
       surname: staff.surname,
       email: staff.email,
       position: staff.position,
-      role: staff.role // Set role to ADMIN programmatically
+      role: staff.role
     };
     return this.http.post(`${this.baseUrl}/register/staff`, registrationData, { responseType: 'text' });
   }
 
   logout(): void {
     this.clearToken();
-    this.loggedIn.next(false);  // Notify subscribers that user is logged out
-    this.userRoleSubject.next(null); // Notify about role change
+    this.loggedIn.next(false);  // Emit new logout status
+    this.userRoleSubject.next(null); // Emit role change
     this.router.navigate(['/products']); // Redirect to products page on logout
   }
 
@@ -95,7 +101,7 @@ export class AuthService {
     localStorage.removeItem('lastName');
     localStorage.removeItem('email');
     localStorage.removeItem('userRole');
-    localStorage.removeItem('userId');  // Clear userId when logging out
+    localStorage.removeItem('userId');
   }
 
   isAdmin(): boolean {
@@ -108,8 +114,7 @@ export class AuthService {
 
   getAccountDetails() {
     return {
-      id: localStorage.getItem('userId') // Only ID is needed for order
+      id: localStorage.getItem('userId')
     };
   }
-
 }

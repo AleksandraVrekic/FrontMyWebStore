@@ -5,6 +5,7 @@ import { AuthenticationRoutingModule } from './authentication-routing.module';
 import { LoginComponent } from './login/login.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RegisterComponent } from './register/register.component';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import { RegisterComponent } from './register/register.component';
     AuthenticationRoutingModule,
     ReactiveFormsModule,
     LoginComponent,
-    RegisterComponent
+    RegisterComponent,
+    MatSnackBarModule
   ]
 })
 export class AuthenticationModule { }

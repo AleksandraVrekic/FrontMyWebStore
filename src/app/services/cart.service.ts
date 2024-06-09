@@ -14,29 +14,46 @@ export class CartService {
   }
 
     // Nova metoda za dobijanje trenutne vrednosti korpe
- getCartItemsValue(): Product[] {
-   return this.cartItemsSubject.value;
- }
+  getCartItemsValue(): Product[] {
+    return this.cartItemsSubject.value;
+  }
 
-  addToCart(product: Product) {
+  addToCart(product: Product): boolean {
     const existingProduct = this.cartItems.find(item => item.id === product.id);
     if (existingProduct) {
-      existingProduct.quantity++;
+      if (existingProduct.quantity < product.quantity) {
+        existingProduct.quantity++;
+        this.cartItemsSubject.next(this.cartItems);
+        this.saveCartItems();
+        return true;
+      } else {
+        return false;
+      }
     } else {
-      product.quantity = 1;
-      this.cartItems.push(product);
+      this.cartItems.push({ ...product, quantity: 1 });
+      this.cartItemsSubject.next(this.cartItems);
+      this.saveCartItems();
+      return true;
     }
-    this.cartItemsSubject.next(this.cartItems);
-    this.saveCartItems();
+  }
+
+  decreaseQuantity(product: Product): boolean {
+    const existingProduct = this.cartItems.find(item => item.id === product.id);
+    if (existingProduct) {
+      if (existingProduct.quantity > 1) {
+        existingProduct.quantity--;
+      } else {
+        this.removeFromCart(product);
+      }
+      this.cartItemsSubject.next(this.cartItems);
+      this.saveCartItems();
+      return true;
+    }
+    return false;
   }
 
   removeFromCart(product: Product) {
-    const existingProduct = this.cartItems.find(item => item.id === product.id);
-    if (existingProduct && existingProduct.quantity > 1) {
-      existingProduct.quantity--;
-    } else {
-      this.cartItems = this.cartItems.filter(item => item !== product);
-    }
+    this.cartItems = this.cartItems.filter(item => item.id !== product.id);
     this.cartItemsSubject.next(this.cartItems);
     this.saveCartItems();
   }

@@ -1,15 +1,26 @@
 <div class="cart">
   <h2>Your Cart</h2>
-  <div *ngIf="cartItems.length === 0">Your cart is empty.</div>
-  <div *ngFor="let item of cartItems">
-    <h3>{{ item.name }}</h3>
-    <p>{{ item.description }}</p>
-    <p>Price: {{ item.price | currency }}</p>
-    <p>Quantity: {{ item.quantity }}</p>
-    <button (click)="increaseQuantity(item)">+</button>
-    <button (click)="removeFromCart(item)">Remove</button>
+  <div *ngIf="cartItems.length === 0" class="empty-cart">Your cart is empty.</div>
+  <div *ngFor="let item of cartItems" class="cart-item">
+    <div class="item-info">
+      <h3>{{ item.name }}</h3>
+      <p>{{ item.description }}</p>
+      <p class="item-price">Price: {{ item.price | currency }}</p>
+      <p class="item-quantity">Quantity: {{ item.quantity }}</p>
+    </div>
+    <div class="item-actions">
+      <button (click)="increaseQuantity(item)" class="btn btn-small">+</button>
+      <button (click)="decreaseQuantity(item)" class="btn btn-small">-</button>
+      <button (click)="removeFromCart(item)" class="btn btn-small btn-remove">Remove</button>
+    </div>
   </div>
-  <h3>Total Quantity: {{ totalQuantity }}</h3>
-  <h3>Total: {{ total | currency }}</h3>
-  <button (click)="onPlati()" class="btn btn-primary">Checkout</button>
+  <div class="cart-summary">
+    <h3>Total Quantity: {{ totalQuantity }}</h3>
+    <h3>Total: {{ total | currency }}</h3>
+    <button (click)="onPlati()" class="btn btn-primary">Checkout</button>
+  </div>
 </div>
+
+
+
+

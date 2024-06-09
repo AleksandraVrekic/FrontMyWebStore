@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Product } from '../../models/product-model';
 import { ProductService } from '../../services/product.service';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, FormsModule, NgModel, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs/operators';
 import { AddProductComponent } from '../add-product/add-product.component';
@@ -16,11 +16,21 @@ import { EditCategoryComponent } from '../../category/edit-category/edit-categor
 import { AddCategoryComponent } from '../../category/add-category/add-category.component';
 import { Subscription } from 'rxjs';
 import { CartService } from '../../services/cart.service';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, HttpClientModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, HttpClientModule,    MatSnackBarModule,
+    MatInputModule,
+    MatSelectModule,
+    MatOptionModule,
+    FormsModule
+  ],
   templateUrl: './products-list.component.html',
   styleUrls: ['./products-list.component.scss']
 })
@@ -33,6 +43,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   private productsSubscription!: Subscription;
   private productsChangedSubscription!: Subscription;
   searchForm: FormGroup;
+  backendUrl = 'http://localhost:8080'; // Bazni URL za backend server
 
   constructor(
     private productService: ProductService,
@@ -41,6 +52,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     public dialog: MatDialog,
     public authService: AuthService,
     private cartService: CartService,
+    private snackBar: MatSnackBar
   ) {
     this.searchForm = this.fb.group({
       productName: ['', Validators.required]
@@ -159,6 +171,11 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     this.paginateProducts();
   }
 
+  onPageSizeChange() {
+    this.pageNumber = 1;
+    this.paginateProducts();
+  }
+
   get currentPage(): number {
     return this.pageNumber;
   }
@@ -169,7 +186,17 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   }
 
   addToCart(product: Product) {
-    this.cartService.addToCart(product);
+    const success = this.cartService.addToCart(product);
+    if (!success) {
+      this.snackBar.open('Cannot add more items than available in stock.', 'Close', {
+        duration: 3000,
+      });
+    }
+  }
+
+  canAddToCart(product: Product): boolean {
+    const cartItem = this.cartService.getCartItemsValue().find(item => item.id === product.id);
+    return cartItem ? cartItem.quantity < product.quantity : true;
   }
 
   fetchProductsByCategory(categoryId: number) {
@@ -222,5 +249,9 @@ export class ProductsListComponent implements OnInit, OnDestroy {
         this.loadCategories();
       }
     });
+  }
+
+  getImageUrl(imagePath: string): string {
+    return `${this.backendUrl}${imagePath}`;
   }
 }

@@ -18,8 +18,10 @@
     <button *ngIf="authService.isAdmin()" (click)="openAddProductDialog()" style="margin-bottom: 20px;">Add New Product</button>
 
     <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
-      <label for="productName">Product Name:</label>
-      <input id="productName" formControlName="productName" placeholder="Search products..." />
+      <div>
+        <label for="productName">Product Name</label>
+        <input id="productName" formControlName="productName" placeholder="Search products...">
+      </div>
       <button type="submit">Search</button>
     </form>
 
@@ -28,14 +30,23 @@
       <button (click)="sortProductsByPrice('desc')">Sort by Price (Descending)</button>
     </div>
 
-    <div *ngFor="let product of paginatedProducts" class="product">
-      <h3>{{ product.name }}</h3>
-      <p>Price: {{ product.price }}</p>
-      <p *ngIf="authService.isAdmin()">Quantity: {{ product.quantity }}</p>
-      <a [routerLink]="['/products', product.id]">View Details</a>
-      <button (click)="addToCart(product)">Add to Cart</button>
-      <button *ngIf="authService.isAdmin()" (click)="deleteProduct(product.id)">Delete</button>
-      <button *ngIf="authService.isAdmin()" [routerLink]="['/edit-product', product.id]">Edit</button>
+    <label for="pageSize">Products per page:</label>
+    <select id="pageSize" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+      <option value="5">5</option>
+      <option value="10">10</option>
+    </select>
+
+    <div class="product-grid">
+      <div *ngFor="let product of paginatedProducts" class="product">
+        <h3>{{ product.name }}</h3>
+        <img *ngIf="product.image" [src]="getImageUrl(product.image)" alt="{{ product.name }}" class="product-image">
+        <p>Price: {{ product.price }}</p>
+        <p *ngIf="authService.isAdmin()">Quantity: {{ product.quantity }}</p>
+        <a [routerLink]="['/products', product.id]">View Details</a>
+        <button (click)="addToCart(product)" [disabled]="!canAddToCart(product)">Add to Cart</button>
+        <button *ngIf="authService.isAdmin()" (click)="deleteProduct(product.id)">Delete</button>
+        <button *ngIf="authService.isAdmin()" [routerLink]="['/edit-product', product.id]">Edit</button>
+      </div>
     </div>
 
     <div class="pagination">
@@ -45,47 +56,3 @@
     </div>
   </div>
 </div>
-
-
-<style>
-.product {
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 5px;
-}
-
-.product h3 {
-  margin: 0 0 10px;
-}
-
-.product p {
-  margin: 0 0 5px;
-}
-
-.pagination button {
-  margin: 5px;
-}
-
-.pagination button.active {
-  font-weight: bold;
-  background-color: #007bff;
-  color: white;
-}
-
-.sidebar {
-  float: left;
-  width: 20%;
-}
-
-.content {
-  float: left;
-  width: 75%;
-  margin-left: 5%;
-}
-
-.container {
-  display: flex;
-}
-
-</style>

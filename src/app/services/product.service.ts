@@ -21,13 +21,13 @@ export class ProductService {
     return this.http.get<Product>(`${this.apiUrl}/${id}`);
   }
 
-  createProduct(product: Product): Observable<Product> {
+  createProduct(productData: FormData): Observable<Product> {
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Add this if your backend requires authentication
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
     });
 
-    return this.http.post<Product>(this.apiUrl, product, { headers }).pipe(
-      tap(() => this.productsChanged.next()), // Emit change event
+    return this.http.post<Product>(this.apiUrl, productData, { headers }).pipe(
+      tap(() => this.productsChanged.next()),
       catchError(error => {
         console.error('Failed to create product:', error);
         return throwError(() => new Error('Failed to create product, please try again later.'));
@@ -35,12 +35,13 @@ export class ProductService {
     );
   }
 
-  updateProduct(id: number, product: Product): Observable<Product> {
+  updateProduct(id: number, productData: FormData): Observable<Product> {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${localStorage.getItem('authToken')}`
     });
-    return this.http.put<Product>(`${this.apiUrl}/${id}`, product, { headers }).pipe(
-      tap(() => this.productsChanged.next()) // Emit change event
+
+    return this.http.put<Product>(`${this.apiUrl}/${id}`, productData, { headers }).pipe(
+      tap(() => this.productsChanged.next())
     );
   }
 

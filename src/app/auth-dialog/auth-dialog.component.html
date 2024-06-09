@@ -1,65 +1,118 @@
-<h1 mat-dialog-title>{{ isLoginMode ? 'Login' : 'Register' }}</h1>
-<div mat-dialog-content>
-  <ng-container *ngIf="!isLoggedIn; else welcomeTemplate">
-    <form *ngIf="isLoginMode; else registerTemplate" [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()">
+<div class="dialog-container">
+  <button mat-icon-button class="close-button" (click)="closeDialog()">
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <ng-container *ngIf="isLoggedIn; else loginRegisterForms">
+    <h2>Welcome, {{ username }}!</h2>
+    <button mat-raised-button color="primary" (click)="logout()">Logout</button>
+  </ng-container>
+
+  <ng-template #loginRegisterForms>
+    <h2 *ngIf="isLoginMode">Login</h2>
+    <h2 *ngIf="!isLoginMode">Register</h2>
+
+    <form *ngIf="isLoginMode" [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()">
       <div>
         <label for="username">Username:</label>
         <input id="username" formControlName="username" />
+        <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+          Username is required
+        </div>
       </div>
       <div>
         <label for="password">Password:</label>
         <input id="password" type="password" formControlName="password" />
+        <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          Password is required
+        </div>
       </div>
-      <button type="submit">Login</button>
+      <button mat-raised-button color="primary" type="submit">Login</button>
     </form>
-    <ng-template #registerTemplate>
-      <form [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()">
-        <div>
-          <label for="name">Name:</label>
-          <input id="name" type="text" formControlName="name" />
+
+    <form *ngIf="!isLoginMode" [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()">
+      <div>
+        <label for="name">First Name:</label>
+        <input id="name" formControlName="name" />
+        <div *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched">
+          Name is required
         </div>
-        <div>
-          <label for="surname">Surname:</label>
-          <input id="surname" type="text" formControlName="surname" />
+      </div>
+      <div>
+        <label for="surname">Last Name:</label>
+        <input id="surname" formControlName="surname" />
+        <div *ngIf="registerForm.get('surname')?.invalid && registerForm.get('surname')?.touched">
+          Surname is required
         </div>
-        <div>
-          <label for="email">Email:</label>
-          <input id="email" type="email" formControlName="email" />
+      </div>
+      <div>
+        <label for="email">Email:</label>
+        <input id="email" formControlName="email" />
+        <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+          Valid email is required
         </div>
-        <div>
-          <label for="username">Username:</label>
-          <input id="username" type="text" formControlName="username" />
+      </div>
+      <div>
+        <label for="username">Username:</label>
+        <input id="username" formControlName="username" />
+        <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+          Username is required
         </div>
-        <div>
-          <label for="password">Password:</label>
-          <input id="password" type="password" formControlName="password" />
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input id="password" type="password" formControlName="password" />
+        <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+          Password is required (min 6 characters)
         </div>
-        <div>
-          <label for="phone">Phone:</label>
-          <input id="phone" type="text" formControlName="phone" />
+      </div>
+      <div>
+        <label for="phone">Phone:</label>
+        <input id="phone" formControlName="phone" />
+        <div *ngIf="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched">
+          Phone number is required
         </div>
-        <div formGroupName="address">
+      </div>
+      <div formGroupName="address">
+        <div>
           <label for="street">Street:</label>
-          <input id="street" type="text" formControlName="street" />
-          <label for="city">City:</label>
-          <input id="city" type="text" formControlName="city" />
-          <label for="country">Country:</label>
-          <input id="country" type="text" formControlName="country" />
-          <label for="zip">ZIP Code:</label>
-          <input id="zip" type="text" formControlName="zip" />
+          <input id="street" formControlName="street" />
+          <div *ngIf="registerForm.get('address.street')?.invalid && registerForm.get('address.street')?.touched">
+            Street is required
+          </div>
         </div>
-        <button type="submit">Register</button>
-      </form>
-    </ng-template>
-  </ng-container>
-  <ng-template #welcomeTemplate>
-    <p>Welcome, {{ username }}</p>
+        <div>
+          <label for="city">City:</label>
+          <input id="city" formControlName="city" />
+          <div *ngIf="registerForm.get('address.city')?.invalid && registerForm.get('address.city')?.touched">
+            City is required
+          </div>
+        </div>
+        <div>
+          <label for="country">Country:</label>
+          <input id="country" formControlName="country" />
+          <div *ngIf="registerForm.get('address.country')?.invalid && registerForm.get('address.country')?.touched">
+            Country is required
+          </div>
+        </div>
+        <div>
+          <label for="zip">ZIP Code:</label>
+          <input id="zip" formControlName="zip" />
+          <div *ngIf="registerForm.get('address.zip')?.invalid && registerForm.get('address.zip')?.touched">
+            ZIP code is required
+          </div>
+        </div>
+      </div>
+      <button mat-raised-button color="primary" type="submit">Register</button>
+    </form>
+
+    <button mat-button (click)="switchMode()">
+      Switch to {{ isLoginMode ? 'Register' : 'Login' }}
+    </button>
   </ng-template>
 </div>
-<div mat-dialog-actions>
-  <button mat-button (click)="switchMode()" *ngIf="!isLoggedIn">{{ isLoginMode ? 'Switch to Register' : 'Switch to Login' }}</button>
-  <button mat-button (click)="dialogRef.close()">Close</button>
-  <button *ngIf="isLoggedIn" mat-button (click)="logout()">Logout</button>
-</div>
+
+
+
 
 

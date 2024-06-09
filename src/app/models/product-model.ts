@@ -1,4 +1,48 @@
-export class Product {
+export interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  quantity: number;
+  image: string | null;
+  category: {
+    categoryId: number;
+    categoryName: string;
+  };
+}
+
+export interface ProductFormData {
+  name: string;
+  description: string;
+  price: number;
+  quantity: number;
+  category: {
+    categoryId: number;
+    categoryName: string;
+  };
+}
+
+// Define a class for Product
+export class ProductClass implements Product {
+  constructor(
+    public id: number,
+    public name: string,
+    public description: string,
+    public price: number,
+    public quantity: number,
+    public image: string | null,
+    public category: {
+      categoryId: number;
+      categoryName: string;
+    }
+  ) {}
+}
+
+
+
+
+
+/*export class Product {
   id: number;
   name: string;
   description: string;
@@ -16,4 +60,4 @@ export class Product {
     this.image = image;
     this.category = category;
   }
-}
+}*/

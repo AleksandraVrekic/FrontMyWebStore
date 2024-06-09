@@ -1,9 +1,33 @@
 <form [formGroup]="checkoutFormGroup" (ngSubmit)="onSubmit()">
   <div formGroupName="customer">
-    <input formControlName="firstName" placeholder="First Name">
-    <input formControlName="lastName" placeholder="Last Name">
-    <input formControlName="email" placeholder="Email">
+    <label for="firstName">First Name:</label>
+    <input id="firstName" type="text" formControlName="firstName" readonly>
+
+    <label for="lastName">Last Name:</label>
+    <input id="lastName" type="text" formControlName="lastName" readonly>
+
+    <label for="email">Email:</label>
+    <input id="email" type="email" formControlName="email" readonly>
   </div>
+
+  <div formGroupName="customerAddress">
+    <label for="street">Street:</label>
+    <input id="street" type="text" formControlName="street" readonly>
+
+    <label for="city">City:</label>
+    <input id="city" type="text" formControlName="city" readonly>
+
+    <label for="state">State:</label>
+    <input id="state" type="text" formControlName="state" readonly>
+
+    <label for="country">Country:</label>
+    <input id="country" type="text" formControlName="country" readonly>
+
+    <label for="zipCode">Zip Code:</label>
+    <input id="zipCode" type="text" formControlName="zipCode" readonly>
+  </div>
+
+  <button type="button" (click)="editProfile()">Edit Profile</button>
 
  <!-- Stripe Elements Credit Card Section -->
  <div formGroupName="creditCard" class="form-area">
