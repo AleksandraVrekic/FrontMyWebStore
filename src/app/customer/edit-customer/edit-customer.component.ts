@@ -19,6 +19,7 @@ export class EditCustomerComponent implements OnInit {
   editProfileForm: FormGroup;
   customerId!: number;
   customer!: Customer;
+  errorMessage: any;
 
   constructor(
     private fb: FormBuilder,
@@ -78,14 +79,15 @@ export class EditCustomerComponent implements OnInit {
           email: this.editProfileForm.value.email
         }
       };
-      this.customerService.updateCustomer(this.customerId, updatedCustomer).subscribe(() => {
-        const config = new MatSnackBarConfig();
-        config.duration = 3000;
-        config.horizontalPosition = 'center';
-        config.verticalPosition = 'top'; // You can use 'top' or 'bottom' here
-        this.snackBar.open('Changes have been saved', 'Close', config);
-        this.router.navigate(['/profile/:id']); // Redirect to customer list or desired route after saving
-      });
+      this.customerService.updateCustomer(this.customerId, updatedCustomer).subscribe(
+        () => {
+          this.router.navigate(['/profile', this.customerId.toString()]);
+        },
+        (error) => {
+          console.error('Error updating customer:', error);
+          this.errorMessage = error.error || 'An unexpected error occurred';
+        }
+      );
     }
   }
 }

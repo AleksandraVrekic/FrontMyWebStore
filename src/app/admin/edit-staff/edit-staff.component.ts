@@ -16,6 +16,7 @@ export class EditStaffComponent implements OnInit {
 
   editStaffForm: FormGroup;
   positions: string[] = ['Store Manager', 'Marketing Specialist', 'Inventory Manager', 'HR', 'Cashier', 'Support'];
+  errorMessage: string | null = null;
 
 
   constructor(
@@ -56,6 +57,7 @@ export class EditStaffComponent implements OnInit {
         this.dialogRef.close(true);
       }, (error) => {
         console.error('Error updating staff:', error);
+        this.errorMessage = error.error || 'An unexpected error occurred';
       });
     }
   }

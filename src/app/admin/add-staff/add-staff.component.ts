@@ -15,6 +15,7 @@ export class AddStaffComponent implements OnInit {
   addStaffForm: FormGroup;
 
   positions: string[] = ['Store Manager', 'Marketing Specialist', 'Inventory Manager', 'HR', 'Cashier', 'Support'];
+  errorMessage: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -47,23 +48,18 @@ export class AddStaffComponent implements OnInit {
         position: formValues.position,
         role: 'ADMIN' // Set role to ADMIN programmatically
       };
-      console.log('Staff data being sent:', staffData); // Debugging line
-      this.authService.registerStaff(staffData).subscribe(() => {
-        this.dialogRef.close(true);
-      }, (error) => {
-        console.error('Error registering staff:', error);
-      });
+
+      this.authService.registerStaff(staffData).subscribe(
+        () => {
+          this.dialogRef.close(true);
+        },
+        (error) => {
+          console.error('Error registering staff:', error);
+          this.errorMessage = error.error || 'An unexpected error occurred';
+        }
+      );
     }
   }
-
-/*
-  save() {
-    if (this.addStaffForm.valid) {
-      this.authService.registerStaff(this.addStaffForm.value).subscribe(() => {
-        this.dialogRef.close(true);
-      });
-    }
-  }*/
 
   close() {
     this.dialogRef.close();

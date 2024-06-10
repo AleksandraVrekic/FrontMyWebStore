@@ -1,73 +1,78 @@
 <div class="edit-profile-container">
   <h2>Edit Profile</h2>
   <form [formGroup]="editProfileForm" (ngSubmit)="onSubmit()">
-    <div>
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+    <div class="form-group">
       <label for="username">Username:</label>
-      <input id="username" formControlName="username" />
-      <div *ngIf="editProfileForm.get('username')?.invalid && editProfileForm.get('username')?.touched">
+      <input id="username" formControlName="username" class="form-control"/>
+      <div *ngIf="editProfileForm.get('username')?.invalid && editProfileForm.get('username')?.touched" class="error">
         Username is required.
       </div>
     </div>
-    <div>
+    <div class="form-group">
       <label for="password">Password:</label>
-      <input id="password" type="password" formControlName="password" />
-      <div *ngIf="editProfileForm.get('password')?.invalid && editProfileForm.get('password')?.touched">
+      <input id="password" type="password" formControlName="password" class="form-control"/>
+      <div *ngIf="editProfileForm.get('password')?.invalid && editProfileForm.get('password')?.touched" class="error">
         Password is required and must be at least 6 characters long.
       </div>
     </div>
-    <div>
+    <div class="form-group">
       <label for="firstName">First Name:</label>
-      <input id="firstName" formControlName="firstName" />
-      <div *ngIf="editProfileForm.get('firstName')?.invalid && editProfileForm.get('firstName')?.touched">
+      <input id="firstName" formControlName="firstName" class="form-control"/>
+      <div *ngIf="editProfileForm.get('firstName')?.invalid && editProfileForm.get('firstName')?.touched" class="error">
         First Name is required.
       </div>
     </div>
-    <div>
+    <div class="form-group">
       <label for="lastName">Last Name:</label>
-      <input id="lastName" formControlName="lastName" />
-      <div *ngIf="editProfileForm.get('lastName')?.invalid && editProfileForm.get('lastName')?.touched">
+      <input id="lastName" formControlName="lastName" class="form-control"/>
+      <div *ngIf="editProfileForm.get('lastName')?.invalid && editProfileForm.get('lastName')?.touched" class="error">
         Last Name is required.
       </div>
     </div>
-    <div>
+    <div class="form-group">
       <label for="email">Email:</label>
-      <input id="email" formControlName="email" />
-      <div *ngIf="editProfileForm.get('email')?.invalid && editProfileForm.get('email')?.touched">
+      <input id="email" formControlName="email" class="form-control"/>
+      <div *ngIf="editProfileForm.get('email')?.invalid && editProfileForm.get('email')?.touched" class="error">
         Enter a valid email.
       </div>
     </div>
     <div formGroupName="address">
       <h3>Address</h3>
-      <div>
+      <div class="form-group">
         <label for="street">Street:</label>
-        <input id="street" formControlName="street" />
-        <div *ngIf="editProfileForm.get('address.street')?.invalid && editProfileForm.get('address.street')?.touched">
+        <input id="street" formControlName="street" class="form-control"/>
+        <div *ngIf="editProfileForm.get('address.street')?.invalid && editProfileForm.get('address.street')?.touched" class="error">
           Street is required.
         </div>
       </div>
-      <div>
+      <div class="form-group">
         <label for="city">City:</label>
-        <input id="city" formControlName="city" />
-        <div *ngIf="editProfileForm.get('address.city')?.invalid && editProfileForm.get('address.city')?.touched">
+        <input id="city" formControlName="city" class="form-control"/>
+        <div *ngIf="editProfileForm.get('address.city')?.invalid && editProfileForm.get('address.city')?.touched" class="error">
           City is required.
         </div>
       </div>
-      <div>
+      <div class="form-group">
         <label for="country">Country:</label>
-        <input id="country" formControlName="country" />
-        <div *ngIf="editProfileForm.get('address.country')?.invalid && editProfileForm.get('address.country')?.touched">
+        <input id="country" formControlName="country" class="form-control"/>
+        <div *ngIf="editProfileForm.get('address.country')?.invalid && editProfileForm.get('address.country')?.touched" class="error">
           Country is required.
         </div>
       </div>
-      <div>
+      <div class="form-group">
         <label for="zip">ZIP Code:</label>
-        <input id="zip" formControlName="zip" />
-        <div *ngIf="editProfileForm.get('address.zip')?.invalid && editProfileForm.get('address.zip')?.touched">
+        <input id="zip" formControlName="zip" class="form-control"/>
+        <div *ngIf="editProfileForm.get('address.zip')?.invalid && editProfileForm.get('address.zip')?.touched" class="error">
           ZIP Code is required.
         </div>
       </div>
     </div>
-    <button type="submit" [disabled]="editProfileForm.invalid">Save Changes</button>
+    <button type="submit" [disabled]="editProfileForm.invalid" class="btn btn-primary">Save Changes</button>
   </form>
 </div>
+
+
 

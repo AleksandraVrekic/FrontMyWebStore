@@ -21,6 +21,11 @@
     <div class="order-summary">
       <p>Total Price: {{ order.totalPrice | currency }}</p>
     </div>
+    <div class="user-info">
+      <h4>Customer Information:</h4>
+      <p><strong>Name:</strong> {{ order.account.firstName }} {{ order.account.lastName }}</p>
+      <p><strong>Email:</strong> {{ order.account.email }}</p>
+    </div>
     <div *ngIf="order.orderItems && order.orderItems.length > 0" class="order-items">
       <h4>Products:</h4>
       <ul>
