@@ -1,5 +1,6 @@
-<form [formGroup]="checkoutFormGroup" (ngSubmit)="onSubmit()">
-  <div formGroupName="customer">
+<form [formGroup]="checkoutFormGroup" (ngSubmit)="onSubmit()" class="checkout-form">
+  <div formGroupName="customer" class="form-section">
+    <h3>Customer Information</h3>
     <label for="firstName">First Name:</label>
     <input id="firstName" type="text" formControlName="firstName" readonly>
 
@@ -10,7 +11,8 @@
     <input id="email" type="email" formControlName="email" readonly>
   </div>
 
-  <div formGroupName="customerAddress">
+  <div formGroupName="customerAddress" class="form-section">
+    <h3>Customer Address</h3>
     <label for="street">Street:</label>
     <input id="street" type="text" formControlName="street" readonly>
 
@@ -27,33 +29,30 @@
     <input id="zipCode" type="text" formControlName="zipCode" readonly>
   </div>
 
-  <button type="button" (click)="editProfile()">Edit Profile</button>
+  <button type="button" (click)="editProfile()" class="btn btn-secondary">Edit Profile</button>
 
- <!-- Stripe Elements Credit Card Section -->
- <div formGroupName="creditCard" class="form-area">
-
+  <!-- Stripe Elements Credit Card Section -->
+  <div formGroupName="creditCard" class="form-section">
     <h3>Credit or Debit Card</h3>
-
     <div id="card-element">
-        <!-- a Stripe element will be inserted here -->
+      <!-- a Stripe element will be inserted here -->
     </div>
-
     <!-- Used to display form errors -->
-    <div id="card-errors" class="displayError.textContent!=='': 'alert alert-danger mt-1'"></div>
+    <div id="card-errors" role="alert" [ngClass]="{'alert alert-danger mt-1': displayError !== ''}"></div>
+  </div>
 
-</div>
-
-<!-- Order details -->
-<div class="form-area">
-  <h3>Review Your Order</h3>
-  <p>Total Quantity: {{ totalQuantity }}</p>
-  <p>Shipping: FREE</p>
-  <p>Total Price: {{ totalPrice | currency:'USD' }}</p>
-</div>
+  <!-- Order details -->
+  <div class="form-section">
+    <h3>Review Your Order</h3>
+    <p>Total Quantity: {{ totalQuantity }}</p>
+    <p>Shipping: FREE</p>
+    <p>Total Price: {{ totalPrice | currency:'USD' }}</p>
+  </div>
 
   <!-- submit button-->
   <div class="text-center">
     <button type="submit" class="btn btn-info" [disabled]="isDisabled">Purchase</button>
   </div>
 </form>
+
 

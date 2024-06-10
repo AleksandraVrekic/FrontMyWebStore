@@ -8,6 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
+import { HttpErrorResponse } from '@angular/common/http';
+import { CartService } from '../services/cart.service';
 
 
 @Component({
@@ -27,6 +29,7 @@ export class AuthDialogComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     public authService: AuthService,
+    public cartService: CartService,
     private router: Router,
     public dialogRef: MatDialogRef<AuthDialogComponent>,
     private snackBar: MatSnackBar
@@ -103,14 +106,23 @@ export class AuthDialogComponent implements OnInit {
           this.snackBar.open('Registration successful!', 'Close', {
             duration: 3000,
           });
-          this.dialogRef.close();
-          this.router.navigate(['/login']);
-        },
-        (error) => {
-          console.error('Registration failed:', error);
-          this.snackBar.open('Registration failed. Please try again.', 'Close', {
+          console.log('Registration successful:', response);
+          this.snackBar.open('Registration successful! Please log in.', 'Close', {
             duration: 3000,
           });
+          this.isLoginMode = true; // Switch to login mode
+        },
+        (error: HttpErrorResponse) => {
+          console.error('Registration failed:', error);
+          if (error.status === 409 && (error.error === "Username already exists!" || error.error === "Email already exists!")) {
+            this.snackBar.open(error.error, 'Close', {
+              duration: 3000,
+            });
+          } else {
+            this.snackBar.open('Registration failed. Please try again.', 'Close', {
+              duration: 3000,
+            });
+          }
         }
       );
     } else {
@@ -122,6 +134,7 @@ export class AuthDialogComponent implements OnInit {
 
   logout() {
     this.authService.logout();
+    this.cartService.clearCart(); // Očistite korpu prilikom odjave
     this.dialogRef.close();
     this.router.navigate(['/products']); // Redirect to the products page after logout
     this.snackBar.open('You have been logged out.', 'Close', {

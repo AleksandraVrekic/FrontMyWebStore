@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Route, Router, RouterModule } from '@angular/router';
 import { Product } from '../models/product-model';
 import { CartService } from '../services/cart.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -28,6 +28,7 @@ export class CartComponent implements OnInit {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -88,14 +89,8 @@ export class CartComponent implements OnInit {
       return;
     }
 
-    const dialogRef = this.dialog.open(CheckoutComponent, {
-      width: '400px',
-      data: { total: this.total }
-    });
-
-    dialogRef.afterClosed().subscribe(() => {
-      console.log('The dialog was closed');
-    });
+    // Navigacija na checkout stranicu
+    this.router.navigate(['/checkout']);
   }
 }
 

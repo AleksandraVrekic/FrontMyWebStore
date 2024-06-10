@@ -34,12 +34,7 @@
     <div *ngIf="productForm.get('categoryName')?.hasError('required') && productForm.get('categoryName')?.touched">Category is required</div>
   </div>
 
-  <div>
-    <label for="image">Product Image</label>
-    <input id="image" type="file" (change)="onFileSelected($event)">
-  </div>
-
-  <button type="submit" [disabled]="productForm.invalid">Add Product</button>
+  <button mat-raised-button color="primary" type="submit" [disabled]="productForm.invalid">Add Product</button>
 </form>
 
 

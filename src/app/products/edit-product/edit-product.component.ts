@@ -13,11 +13,11 @@ import { CommonModule } from '@angular/common';
   templateUrl: './edit-product.component.html',
   styleUrls: ['./edit-product.component.scss'],
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule]
+  imports: [ReactiveFormsModule, CommonModule,]
 })
 export class EditProductComponent implements OnInit, OnDestroy {
   productForm: FormGroup;
-  productId: number = 0;
+  productId: number = 0; // Default value, not ideal if productId should always be provided
   isAdmin: boolean = false;
   categories: Category[] = [];
   private authSubscription: Subscription = Subscription.EMPTY;
@@ -26,16 +26,16 @@ export class EditProductComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private productService: ProductService,
     private authService: AuthService,
+    private categoryService: CategoryService,
     private route: ActivatedRoute,
-    private router: Router,
-    private categoryService: CategoryService
+    private router: Router
   ) {
     this.productForm = this.fb.group({
       name: ['', Validators.required],
       description: ['', Validators.required],
       price: ['', [Validators.required, Validators.min(0)]],
       quantity: [0, Validators.required],
-      category: [null, Validators.required]
+      categoryName: ['', Validators.required] // Add categoryId control
     });
   }
 
@@ -48,17 +48,24 @@ export class EditProductComponent implements OnInit, OnDestroy {
     this.productService.getProductById(this.productId).subscribe({
       next: (product) => {
         this.productForm.patchValue(product);
-        this.productForm.patchValue({ category: product.category });
+        this.loadCategories();
       },
       error: (err) => {
         console.error('Failed to fetch product:', err);
         this.router.navigate(['/products']);
       }
     });
+  }
 
+  loadCategories(): void {
     this.categoryService.getAllCategories().subscribe({
-      next: (categories) => this.categories = categories,
-      error: (err) => console.error('Failed to fetch categories:', err)
+      next: (categories) => {
+        this.categories = categories;
+        console.log('Categories loaded:', this.categories);
+      },
+      error: (err) => {
+        console.error('Error loading categories:', err);
+      }
     });
   }
 
@@ -72,8 +79,13 @@ export class EditProductComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.productForm.valid && this.isAdmin) {
-      console.log(this.productForm.value);
-      this.productService.updateProduct(this.productId, this.productForm.value).subscribe({
+      const selectedCategory = this.categories.find(cat => cat.categoryName === this.productForm.value.categoryName);
+      const productData = {
+        ...this.productForm.value,
+        category: selectedCategory
+      };
+
+      this.productService.updateProduct(this.productId, productData).subscribe({
         next: () => {
           alert('Product updated successfully!');
           this.router.navigate(['/products']);

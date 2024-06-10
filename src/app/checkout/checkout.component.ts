@@ -156,12 +156,13 @@ export class CheckoutComponent implements OnInit {
                 const orderData = this.prepareOrderData();
                 this.orderService.createOrder(orderData).subscribe({
                   next: (order) => {
-                    alert(`Your order has been received.\nOrder tracking number: ${order.orderTrackingNumber}`);
+                    alert(`Your order has been received.`);
                     this.isDisabled = false;
                     this.snackBar.open('Order successfully created!', 'Close', {
                       duration: 3000
                     });
                     this.cartService.clearCart();
+                    this.router.navigate(['/products']);
                   },
                   error: (error) => {
                     alert(`There was an error: ${error.message}`);

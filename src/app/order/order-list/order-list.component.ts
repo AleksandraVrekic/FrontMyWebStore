@@ -1,22 +1,32 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Order } from '../../models/order';
 import { OrderService } from '../../services/order.service';
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ORDER_STATUSES } from '../../models/order-statuses';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-order-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './order-list.component.html',
   styleUrl: './order-list.component.css'
 })
-export class OrderListComponent {
+export class OrderListComponent implements OnInit {
 
   orders: Order[] = [];
+  filteredOrders: Order[] = [];
+  displayedOrders: Order[] = [];
   orderStatuses = ORDER_STATUSES;
+
+  // Pagination properties
+  currentPage = 1;
+  itemsPerPage = 10;
+
+  // Search date property
+  searchDate: string | null = null;
 
   constructor(
     private orderService: OrderService,
@@ -25,16 +35,41 @@ export class OrderListComponent {
   ) {}
 
   ngOnInit(): void {
+    this.loadOrders();
+  }
+
+  loadOrders(): void {
     if (this.authService.isAdmin()) {
       this.orderService.getAllOrders().subscribe(orders => {
         this.orders = orders;
+        this.applyFilters();
       });
     } else {
       const customerId = Number(this.authService.getAccountDetails().id);
       this.orderService.getOrdersForCustomer(customerId).subscribe(orders => {
         this.orders = orders;
+        this.applyFilters();
       });
     }
+  }
+
+  applyFilters(): void {
+    let tempOrders = [...this.orders];
+
+    // Apply date filtering
+    if (this.searchDate) {
+      const search = new Date(this.searchDate);
+      tempOrders = tempOrders.filter(order => new Date(order.orderDate).toDateString() === search.toDateString());
+    }
+
+    this.filteredOrders = tempOrders;
+    this.paginate();
+  }
+
+  paginate(): void {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    this.displayedOrders = this.filteredOrders.slice(start, end);
   }
 
   // Utility function to format date to "MM dd yyyy"
@@ -63,6 +98,7 @@ export class OrderListComponent {
         const index = this.orders.findIndex(order => order.orderId === orderId);
         if (index !== -1) {
           this.orders[index] = updatedOrder;
+          this.applyFilters();
         }
       },
       error => {
@@ -79,11 +115,21 @@ export class OrderListComponent {
     this.orderService.deleteOrder(orderId).subscribe(
       () => {
         this.orders = this.orders.filter(order => order.orderId !== orderId);
+        this.applyFilters();
       },
       error => {
         console.error('Error deleting order:', error);
       }
     );
   }
-}
 
+  onDateChange(): void {
+    this.currentPage = 1; // Reset to the first page whenever the date changes
+    this.applyFilters();
+  }
+
+  changePage(page: number): void {
+    this.currentPage = page;
+    this.paginate();
+  }
+}

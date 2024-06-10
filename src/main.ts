@@ -18,6 +18,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations'; 
 import { OrderListComponent } from './app/order/order-list/order-list.component';
 import { CustomerOrdersComponent } from './app/order/customer-order/customer-order.component';
 import { AuthGuard } from './app/guards/auth.guard';
+import { CheckoutComponent } from './app/checkout/checkout.component';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -39,6 +40,7 @@ bootstrapApplication(AppComponent, {
       { path: 'customers/edit/:id', component: EditCustomerComponent },
       { path: 'profile/:id', component: CustomerProfileComponent },
       { path: 'cart', component: CartComponent },
+      { path: 'checkout', component: CheckoutComponent },
       { path: 'orders', component: OrderListComponent }, // Dodavanje rute za porudžbine
       { path: 'orders', component: OrderListComponent, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
       { path: 'customer/orders', component: CustomerOrdersComponent, canActivate: [AuthGuard], data: { roles: ['CUSTOMER'] } },

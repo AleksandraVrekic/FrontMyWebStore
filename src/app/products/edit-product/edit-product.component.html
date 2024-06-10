@@ -2,26 +2,34 @@
   <div>
     <label for="name">Name:</label>
     <input id="name" type="text" formControlName="name">
+    <div *ngIf="productForm.get('name')?.hasError('required') && productForm.get('name')?.touched">Name is required</div>
   </div>
   <div>
     <label for="description">Description:</label>
     <input id="description" type="text" formControlName="description">
+    <div *ngIf="productForm.get('description')?.hasError('required') && productForm.get('description')?.touched">Description is required</div>
   </div>
   <div>
     <label for="price">Price:</label>
     <input id="price" type="number" formControlName="price">
+    <div *ngIf="productForm.get('price')?.hasError('required') && productForm.get('price')?.touched">Price is required</div>
+    <div *ngIf="productForm.get('price')?.hasError('min') && productForm.get('price')?.touched">Price must be at least 0</div>
   </div>
   <div>
     <label for="quantity">Quantity:</label>
     <input id="quantity" type="number" formControlName="quantity">
+    <div *ngIf="productForm.get('quantity')?.hasError('required') && productForm.get('quantity')?.touched">Quantity is required</div>
   </div>
   <div>
-    <label for="category">Category:</label>
-    <select id="category" formControlName="category">
-      <option *ngFor="let category of categories" [ngValue]="category">{{ category.categoryName }}</option>
+    <label for="categoryName">Category:</label>
+    <select id="categoryName" formControlName="categoryName" required>
+      <option *ngFor="let category of categories" [value]="category.categoryName">{{ category.categoryName }}</option>
     </select>
+    <div *ngIf="productForm.get('categoryName')?.hasError('required') && productForm.get('categoryName')?.touched">Category is required</div>
   </div>
-  <button type="submit">Update Product</button>
+  <button type="submit" [disabled]="productForm.invalid">Update Product</button>
 </form>
+
+
 
 

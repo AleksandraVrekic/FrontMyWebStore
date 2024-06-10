@@ -1,30 +1,45 @@
-<div *ngFor="let order of orders" class="order-card">
-  <div class="order-header">
-    <h3>Order ID: {{ order.orderId }}</h3>
-    <p>Order Date: {{ displayOrderDate(order) }}</p>
-    <p>Order Status: {{ order.orderStatus }}</p>
-    <div>
-      <select id="orderStatus-{{ order.orderId }}" (change)="updateOrderStatus(order.orderId, $event)">
-        <option value="" disabled>-- Select Status --</option>
-        <option *ngFor="let status of orderStatuses" [value]="status" [selected]="status === order.orderStatus">{{ status }}</option>
-      </select>
+<div>
+  <label for="searchDate">Search Date:</label>
+  <input type="date" id="searchDate" [(ngModel)]="searchDate" (change)="onDateChange()">
+</div>
+
+<div class="order-list-container">
+  <div *ngFor="let order of displayedOrders" class="order-card">
+    <div class="order-header">
+      <h3>Order ID: {{ order.orderId }}</h3>
+      <p>Order Date: {{ displayOrderDate(order) }}</p>
+    </div>
+    <div class="order-summary">
+      <p>Order Status: {{ order.orderStatus }}</p>
+      <div>
+        <select id="orderStatus-{{ order.orderId }}" (change)="updateOrderStatus(order.orderId, $event)">
+          <option value="" disabled>-- Select Status --</option>
+          <option *ngFor="let status of orderStatuses" [value]="status" [selected]="status === order.orderStatus">{{ status }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="order-summary">
+      <p>Total Price: {{ order.totalPrice | currency }}</p>
+    </div>
+    <div *ngIf="order.orderItems && order.orderItems.length > 0" class="order-items">
+      <h4>Products:</h4>
+      <ul>
+        <li *ngFor="let item of order.orderItems" class="product-item">
+          <p><strong>Product Name:</strong> {{ item.product.name }}</p>
+          <p><strong>Price:</strong> {{ item.product.price | currency }}</p>
+          <p><strong>Quantity:</strong> {{ item.quantity }}</p>
+        </li>
+      </ul>
+    </div>
+    <div class="order-actions">
+      <button *ngIf="order.orderId !== null" (click)="deleteOrder(order.orderId)">Delete Order</button>
     </div>
   </div>
-  <div class="order-summary">
-    <p>Total Price: {{ order.totalPrice | currency }}</p>
-    <p>Discount: {{ order.discount | percent }}</p>
-  </div>
-  <div *ngIf="order.orderItems && order.orderItems.length > 0" class="order-items">
-    <h4>Products:</h4>
-    <ul>
-      <li *ngFor="let item of order.orderItems" class="product-item">
-        <p><strong>Product Name:</strong> {{ item.product.name }}</p>
-        <p><strong>Description:</strong> {{ item.product.description }}</p>
-        <p><strong>Price:</strong> {{ item.product.price | currency }}</p>
-        <p><strong>Quantity:</strong> {{ item.quantity }}</p>
-      </li>
-    </ul>
-  </div>
-  <button *ngIf="order.orderId !== null" (click)="deleteOrder(order.orderId)">Delete Order</button>
+</div>
+
+<div>
+  <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
+  <span>Page {{ currentPage }}</span>
+  <button (click)="changePage(currentPage + 1)" [disabled]="currentPage * itemsPerPage >= filteredOrders.length">Next</button>
 </div>
 
