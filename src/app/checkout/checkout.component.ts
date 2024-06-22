@@ -16,6 +16,7 @@ import { PaymentInfo } from '../models/payment-info';
 import { environment } from '../../environments/environment';
 import { CartItem } from '../models/cart-item';
 import { Router } from '@angular/router';
+import { CustomerService } from '../services/customer.service';
 
 @Component({
   selector: 'app-checkout',
@@ -45,6 +46,7 @@ export class CheckoutComponent implements OnInit {
     private formService: FormService,
     private cartService: CartService,
     private authService: AuthService,
+    private customerService: CustomerService,
     private snackBar: MatSnackBar,
     private orderService: OrderService,
     private router: Router
@@ -84,6 +86,26 @@ export class CheckoutComponent implements OnInit {
       creditCard: this.formBuilder.group({})
     });
 
+        // Fetch and pre-fill customer and address details
+        const username = this.authService.getUsername();
+        if (username) {
+          this.customerService.getUserProfileByUsername(username).subscribe(customer => {
+            this.checkoutFormGroup.patchValue({
+              customer: {
+                firstName: customer.account.firstName,
+                lastName: customer.account.lastName,
+                email: customer.account.email
+              },
+              customerAddress: {
+                street: customer.address.street,
+                city: customer.address.city,
+                country: customer.address.country,
+                zipCode: customer.address.zip
+              }
+            });
+          });
+        }
+
     this.cartService.getCartItems().subscribe(items => {
       this.updateCartSummary(items);
     });
@@ -104,11 +126,20 @@ export class CheckoutComponent implements OnInit {
   }
 
   editProfile() {
-    const userId = localStorage.getItem('userId');
-    if (userId) {
-      this.router.navigate([`/customers/edit/${userId}`]);
+    const username = localStorage.getItem('username');
+    if (username) {
+      this.customerService.getUserProfileByUsername(username).subscribe(
+        (customer) => {
+          this.router.navigate([`/customers/edit/${customer.id}`]);
+        },
+        (error) => {
+          this.snackBar.open('Error fetching customer details!', 'Close', {
+            duration: 3000
+          });
+        }
+      );
     } else {
-      this.snackBar.open('User ID not found!', 'Close', {
+      this.snackBar.open('Username not found!', 'Close', {
         duration: 3000
       });
     }

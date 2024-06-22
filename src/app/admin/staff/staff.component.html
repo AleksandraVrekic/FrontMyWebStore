@@ -1,14 +1,14 @@
-<h2 *ngIf="isAdmin">Employees</h2>
-<button *ngIf="isAdmin" (click)="addStaff()" class="btn btn-primary add-staff-button">Add Staff</button>
+<h2 *ngIf="isAdmin || isSuperAdmin">Employees</h2>
+<button *ngIf="isSuperAdmin" (click)="addStaff()" class="btn btn-primary add-staff-button">Add Staff</button>
 
-<table *ngIf="isAdmin" class="table staff-table">
+<table *ngIf="isAdmin || isSuperAdmin" class="table staff-table">
   <thead>
     <tr>
       <th>First Name</th>
       <th>Last Name</th>
       <th>Email</th>
       <th>Position</th>
-      <th>Actions</th>
+      <th *ngIf="isSuperAdmin">Actions</th>
     </tr>
   </thead>
   <tbody>
@@ -17,13 +17,14 @@
       <td>{{ staff.account.lastName }}</td>
       <td>{{ staff.account.email }}</td>
       <td>{{ staff.position }}</td>
-      <td class="action-buttons">
+      <td *ngIf="isSuperAdmin" class="action-buttons">
         <button (click)="editStaff(staff)" class="btn btn-secondary">Edit</button>
         <button (click)="deleteStaff(staff.id)" class="btn btn-danger">Delete</button>
       </td>
     </tr>
   </tbody>
 </table>
+
 
 
 

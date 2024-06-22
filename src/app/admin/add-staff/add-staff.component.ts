@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 })
 export class AddStaffComponent implements OnInit {
   addStaffForm: FormGroup;
-
+  roles: string[] = ['ADMIN', 'SUPER_ADMIN']; // Added roles array
   positions: string[] = ['Store Manager', 'Marketing Specialist', 'Inventory Manager', 'HR', 'Cashier', 'Support'];
   errorMessage: string | null = null;
 
@@ -29,7 +29,8 @@ export class AddStaffComponent implements OnInit {
       name: ['', Validators.required],
       surname: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      position: ['', Validators.required]
+      position: ['', Validators.required],
+      role: ['', Validators.required] // Add role field
     });
   }
 
@@ -46,7 +47,7 @@ export class AddStaffComponent implements OnInit {
         surname: formValues.surname,
         email: formValues.email,
         position: formValues.position,
-        role: 'ADMIN' // Set role to ADMIN programmatically
+        role: formValues.role // Use the selected role
       };
 
       this.authService.registerStaff(staffData).subscribe(

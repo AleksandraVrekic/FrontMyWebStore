@@ -19,6 +19,7 @@ import { Subscription } from 'rxjs';
 export class StaffComponent implements OnInit, OnDestroy {
   staffs: Staff[] = [];
   isAdmin: boolean = false;
+  isSuperAdmin: boolean = false;
   private roleSubscription: Subscription | null = null; // Initialize with null
   private authSubscription: Subscription | null = null; // Initialize with null
 
@@ -27,8 +28,9 @@ export class StaffComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.roleSubscription = this.authService.userRole$.subscribe(role => {
       this.isAdmin = role === 'ADMIN';
-      if (!this.isAdmin) {
-        this.router.navigate(['/products']); // Redirect to products page if not admin
+      this.isSuperAdmin = role === 'SUPER_ADMIN';
+      if (!this.isAdmin && !this.isSuperAdmin) {
+        this.router.navigate(['/products']); // Redirect to products page if not admin or super admin
       }
     });
 
@@ -51,12 +53,13 @@ export class StaffComponent implements OnInit, OnDestroy {
   }
 
   loadStaffs(): void {
-    if (this.isAdmin) {
+    if (this.isAdmin || this.isSuperAdmin) {
       this.adminService.getStaffs().subscribe(data => {
         this.staffs = data;
       });
     }
   }
+
 
   addStaff(): void {
     const dialogRef = this.dialog.open(AddStaffComponent, {

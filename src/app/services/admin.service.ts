@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, catchError, tap, throwError } from 'rxjs';
 import { Staff } from '../models/staff.model';
 
 @Injectable({
@@ -13,19 +13,42 @@ export class AdminService {
 
   constructor(private http: HttpClient) {}
 
-  getStaffs(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('authToken');
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
   }
 
-  addStaff(staff: Staff): Observable<Staff> {
-    return this.http.post<Staff>(`${this.apiUrl}`, staff);
+  getStaffs(): Observable<any[]> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<any[]>(this.apiUrl, { headers }).pipe(
+      catchError(error => {
+        console.error('Failed to get staff list:', error);
+        return throwError(() => new Error('Failed to get staff list, please try again later.'));
+      })
+    );
   }
 
   updateStaff(id: number, staff: Staff): Observable<Staff> {
-    return this.http.put<Staff>(`${this.apiUrl}/${id}`, staff);
+    const headers = this.getAuthHeaders();
+    return this.http.put<Staff>(`${this.apiUrl}/${id}`, staff, { headers }).pipe(
+      tap(() => console.log('Staff updated successfully')),
+      catchError(error => {
+        console.error('Failed to update staff:', error);
+        return throwError(() => new Error('Failed to update staff, please try again later.'));
+      })
+    );
   }
 
   deleteStaffs(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    const headers = this.getAuthHeaders();
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers }).pipe(
+      tap(() => console.log('Staff deleted successfully')),
+      catchError(error => {
+        console.error('Failed to delete staff:', error);
+        return throwError(() => new Error('Failed to delete staff, please try again later.'));
+      })
+    );
   }
 }

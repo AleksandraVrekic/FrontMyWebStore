@@ -21,6 +21,7 @@ export class EditProductComponent implements OnInit, OnDestroy {
   isAdmin: boolean = false;
   categories: Category[] = [];
   private authSubscription: Subscription = Subscription.EMPTY;
+  selectedFile: File | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -35,7 +36,7 @@ export class EditProductComponent implements OnInit, OnDestroy {
       description: ['', Validators.required],
       price: ['', [Validators.required, Validators.min(0)]],
       quantity: [0, Validators.required],
-      categoryName: ['', Validators.required] // Add categoryId control
+      categoryName: ['', Validators.required]
     });
   }
 
@@ -48,13 +49,15 @@ export class EditProductComponent implements OnInit, OnDestroy {
     this.productService.getProductById(this.productId).subscribe({
       next: (product) => {
         this.productForm.patchValue(product);
-        this.loadCategories();
+        this.productForm.patchValue({ categoryName: product.category.categoryName });
       },
       error: (err) => {
         console.error('Failed to fetch product:', err);
         this.router.navigate(['/products']);
       }
     });
+
+    this.loadCategories();
   }
 
   loadCategories(): void {
@@ -73,27 +76,53 @@ export class EditProductComponent implements OnInit, OnDestroy {
     this.authSubscription.unsubscribe();
   }
 
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length) {
+      this.selectedFile = input.files[0];
+    }
+  }
+
   onSubmit(): void {
     if (!this.productId) {
       console.error('Product ID is not provided.');
       return;
     }
     if (this.productForm.valid && this.isAdmin) {
-      const selectedCategory = this.categories.find(cat => cat.categoryName === this.productForm.value.categoryName);
-      const productData = {
-        ...this.productForm.value,
-        category: selectedCategory
-      };
+      const formValue = this.productForm.value;
+      const selectedCategory = this.categories.find(category => category.categoryName === formValue.categoryName);
 
-      this.productService.updateProduct(this.productId, productData).subscribe({
-        next: () => {
-          alert('Product updated successfully!');
-          this.router.navigate(['/products']);
-        },
-        error: (err) => {
-          alert('Failed to update product: ' + err.message);
+      if (selectedCategory) {
+        const productData = {
+          id: this.productId,
+          name: formValue.name,
+          description: formValue.description,
+          price: formValue.price,
+          quantity: formValue.quantity,
+          category: {
+            categoryId: selectedCategory.categoryId,
+            categoryName: selectedCategory.categoryName
+          }
+        };
+
+        const formData = new FormData();
+        formData.append('product', JSON.stringify(productData));
+        if (this.selectedFile) {
+          formData.append('image', this.selectedFile);
         }
-      });
+
+        this.productService.updateProduct(this.productId, formData).subscribe({
+          next: () => {
+            alert('Product updated successfully!');
+            this.router.navigate(['/products']);
+          },
+          error: (err) => {
+            alert('Failed to update product: ' + err.message);
+          }
+        });
+      } else {
+        console.error('Selected category not found');
+      }
     } else {
       alert('You do not have permission to update this product.');
     }

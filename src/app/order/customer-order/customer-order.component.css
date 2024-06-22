@@ -1,0 +1,63 @@
+.order-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.order-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.order-header {
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+.order-header h3 {
+  margin: 0;
+  font-size: 1.5em;
+  color: #333;
+}
+
+.order-header p {
+  margin: 4px 0;
+  color: #777;
+}
+
+.order-summary {
+  font-size: 1.2em;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.order-items h4 {
+  margin: 0 0 8px 0;
+  font-size: 1.3em;
+  color: #555;
+}
+
+.order-items ul {
+  list-style: none;
+  padding: 0;
+}
+
+.product-item {
+  padding: 8px;
+  margin: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.product-item p {
+  margin: 4px 0;
+  color: #666;
+}
+
+.product-item p strong {
+  color: #333;
+}

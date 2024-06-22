@@ -22,14 +22,17 @@
   </div>
   <div>
     <label for="categoryName">Category:</label>
-    <select id="categoryName" formControlName="categoryName" required>
+    <select id="categoryName" formControlName="categoryName">
       <option *ngFor="let category of categories" [value]="category.categoryName">{{ category.categoryName }}</option>
     </select>
     <div *ngIf="productForm.get('categoryName')?.hasError('required') && productForm.get('categoryName')?.touched">Category is required</div>
   </div>
+  <div>
+    <label for="image">Product Image</label>
+    <input id="image" type="file" (change)="onFileSelected($event)">
+  </div>
   <button type="submit" [disabled]="productForm.invalid">Update Product</button>
 </form>
-
 
 
 

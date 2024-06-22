@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
@@ -84,7 +84,14 @@ export class AuthService {
       position: staff.position,
       role: staff.role
     };
-    return this.http.post(`${this.baseUrl}/register/staff`, registrationData, { responseType: 'text' });
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+    });
+
+    return this.http.post(`${this.baseUrl}/register/staff`, registrationData, { headers, responseType: 'text' }).pipe(
+      catchError(this.handleError)
+    );
   }
 
   logout(): void {
@@ -105,7 +112,8 @@ export class AuthService {
   }
 
   isAdmin(): boolean {
-    return localStorage.getItem('userRole') === 'ADMIN';
+    const role = localStorage.getItem('userRole');
+    return role === 'ADMIN' || role === 'SUPER_ADMIN';
   }
 
   getUsername(): string | null {

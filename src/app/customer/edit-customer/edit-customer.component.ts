@@ -20,6 +20,7 @@ export class EditCustomerComponent implements OnInit {
   customerId!: number;
   customer!: Customer;
   errorMessage: any;
+  changePassword: boolean = false; // Flag for toggling password field visibility
 
   constructor(
     private fb: FormBuilder,
@@ -50,13 +51,18 @@ export class EditCustomerComponent implements OnInit {
       this.loadCustomer();
     }
   }
+  toggleChangePassword(): void {
+    this.changePassword = !this.changePassword;
+    if (!this.changePassword) {
+      this.editProfileForm.get('password')?.reset();
+    }
+  }
 
   loadCustomer(): void {
     this.customerService.getCustomerById(this.customerId).subscribe(customer => {
       this.customer = customer;
       this.editProfileForm.patchValue({
         username: customer.account.userName,
-        password: '',
         firstName: customer.account.firstName,
         lastName: customer.account.lastName,
         email: customer.account.email,
@@ -76,7 +82,8 @@ export class EditCustomerComponent implements OnInit {
           userName: this.editProfileForm.value.username,
           firstName: this.editProfileForm.value.firstName,
           lastName: this.editProfileForm.value.lastName,
-          email: this.editProfileForm.value.email
+          email: this.editProfileForm.value.email,
+          password: this.changePassword && this.editProfileForm.value.password ? this.editProfileForm.value.password : this.customer.account.password // Use existing password if not changed
         }
       };
       this.customerService.updateCustomer(this.customerId, updatedCustomer).subscribe(

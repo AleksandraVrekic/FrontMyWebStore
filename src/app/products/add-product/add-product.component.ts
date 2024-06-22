@@ -12,7 +12,7 @@ import { CategoryService } from '../../services/category.service';
 import { Category } from '../../models/category';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
-import { Product, ProductClass } from '../../models/product-model';
+import { Product, ProductClass, ProductFormData } from '../../models/product-model';
 
 @Component({
   selector: 'app-add-product',
@@ -32,6 +32,7 @@ import { Product, ProductClass } from '../../models/product-model';
 export class AddProductComponent implements OnInit {
   productForm: FormGroup;
   categories: Category[] = [];
+  selectedFile: File | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -64,25 +65,51 @@ export class AddProductComponent implements OnInit {
     });
   }
 
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length) {
+      this.selectedFile = input.files[0];
+    }
+  }
+
   onSubmit(): void {
     if (this.productForm.valid) {
-      const selectedCategory = this.categories.find(cat => cat.categoryName === this.productForm.value.categoryName);
-      const productData = {
-        ...this.productForm.value,
-        category: selectedCategory
-      };
+      const formValue = this.productForm.value;
+      const selectedCategory = this.categories.find(category => category.categoryName === formValue.categoryName);
 
-      this.productService.createProduct(productData).subscribe({
-        next: (product) => {
-          console.log('Product added successfully:', product);
-          this.dialogRef.close(); // Close the dialog on successful add
-        },
-        error: (error) => {
-          console.error('Failed to add product:', error.message);
+      if (selectedCategory) {
+        const productData: ProductFormData = {
+          name: formValue.name,
+          description: formValue.description,
+          price: formValue.price,
+          quantity: formValue.quantity,
+          category: {
+            categoryId: selectedCategory.categoryId,
+            categoryName: selectedCategory.categoryName
+          }
+        };
+
+        const formData = new FormData();
+        formData.append('product', JSON.stringify(productData));
+        if (this.selectedFile) {
+          formData.append('image', this.selectedFile);
         }
-      });
+
+        this.productService.createProduct(formData).subscribe({
+          next: (product) => {
+            console.log('Product added successfully:', product);
+            this.dialogRef.close(); // Close the dialog on successful add
+          },
+          error: (error) => {
+            console.error('Failed to add product:', error.message);
+          }
+        });
+      } else {
+        console.error('Selected category not found');
+      }
     } else {
       console.error('Form is not valid:', this.productForm.errors);
     }
   }
 }
+

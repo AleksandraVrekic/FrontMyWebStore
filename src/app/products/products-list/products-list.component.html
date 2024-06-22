@@ -1,40 +1,33 @@
-<h2>Product List</h2>
 <div class="container">
   <div class="sidebar">
     <h3>Categories</h3>
     <ul>
       <li *ngFor="let category of categories">
-        <button (click)="fetchProductsByCategory(category.categoryId)">
+        <button class="btn-category" (click)="fetchProductsByCategory(category.categoryId)">
           {{ category.categoryName }}
         </button>
-        <button *ngIf="authService.isAdmin()" (click)="openEditCategoryDialog(category)">Edit</button>
-        <button *ngIf="authService.isAdmin()" (click)="openDeleteCategoryDialog(category)">Delete</button>
+        <button *ngIf="authService.isAdmin()" class="btn-edit" (click)="openEditCategoryDialog(category)">Edit</button>
+        <button *ngIf="authService.isAdmin()" class="btn-delete" (click)="openDeleteCategoryDialog(category)">Delete</button>
       </li>
     </ul>
-    <button *ngIf="authService.isAdmin()" (click)="openAddCategoryDialog()">Add New Category</button>
+    <button *ngIf="authService.isAdmin()" class="btn-add" (click)="openAddCategoryDialog()">Add New Category</button>
   </div>
 
   <div class="content">
-    <button *ngIf="authService.isAdmin()" (click)="openAddProductDialog()" style="margin-bottom: 20px;">Add New Product</button>
+    <button *ngIf="authService.isAdmin()" class="btn-add btn-add-product" (click)="openAddProductDialog()">Add New Product</button>
 
-    <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+    <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="search-form">
       <div>
         <label for="productName">Product Name</label>
         <input id="productName" formControlName="productName" placeholder="Search products...">
       </div>
-      <button type="submit">Search</button>
+      <button type="submit" class="btn-search">Search</button>
     </form>
 
-    <div>
-      <button (click)="sortProductsByPrice('asc')">Sort by Price (Ascending)</button>
-      <button (click)="sortProductsByPrice('desc')">Sort by Price (Descending)</button>
+    <div class="sort-buttons">
+      <button class="btn-sort" (click)="sortProductsByPrice('asc')">Sort by Price (Ascending)</button>
+      <button class="btn-sort" (click)="sortProductsByPrice('desc')">Sort by Price (Descending)</button>
     </div>
-
-    <label for="pageSize">Products per page:</label>
-    <select id="pageSize" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
-      <option value="5">5</option>
-      <option value="10">10</option>
-    </select>
 
     <div class="product-grid">
       <div *ngFor="let product of paginatedProducts" class="product">
@@ -42,10 +35,10 @@
         <img *ngIf="product.image" [src]="getImageUrl(product.image)" alt="{{ product.name }}" class="product-image">
         <p>Price: {{ product.price }}</p>
         <p *ngIf="authService.isAdmin()">Quantity: {{ product.quantity }}</p>
-        <a [routerLink]="['/products', product.id]">View Details</a>
-        <button (click)="addToCart(product)" [disabled]="!canAddToCart(product)">Add to Cart</button>
-        <button *ngIf="authService.isAdmin()" (click)="deleteProduct(product.id)">Delete</button>
-        <button *ngIf="authService.isAdmin()" [routerLink]="['/edit-product', product.id]">Edit</button>
+        <a [routerLink]="['/products', product.id]" class="btn-details">View Details</a>
+        <button class="btn-cart" (click)="addToCart(product)" [disabled]="!canAddToCart(product)">Add to Cart</button>
+        <button *ngIf="authService.isAdmin()" class="btn-delete" (click)="deleteProduct(product.id)">Delete</button>
+        <button *ngIf="authService.isAdmin()" class="btn-edit" [routerLink]="['/edit-product', product.id]">Edit</button>
       </div>
     </div>
 
@@ -53,6 +46,14 @@
       <button *ngFor="let pageNumber of getPageNumbers()" (click)="onPageChange(pageNumber)" [class.active]="pageNumber === currentPage">
         {{ pageNumber }}
       </button>
+    </div>
+
+    <div class="page-size-control">
+      <label for="pageSize" class="page-size-label">Products per page:</label>
+      <select id="pageSize" [(ngModel)]="pageSize" (change)="onPageSizeChange()" class="page-size-select">
+        <option value="5">5</option>
+        <option value="10">10</option>
+      </select>
     </div>
   </div>
 </div>

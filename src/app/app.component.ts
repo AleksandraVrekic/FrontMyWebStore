@@ -33,7 +33,7 @@ export class AppComponent {
 
   ngOnInit() {
     this.roleSubscription = this.authService.userRole$.subscribe(role => {
-      this.isAdmin = (role === 'ADMIN');
+      this.isAdmin = (role === 'ADMIN' || role === 'SUPER_ADMIN'); // Updated condition
     });
   }
 
