@@ -16,6 +16,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 })
 export class ProductDetailsComponent implements OnInit {
   product?: Product;
+  backendUrl = 'http://localhost:8080'; // Bazni URL za backend server
 
   constructor(
     private route: ActivatedRoute,  // Correctly injected here
@@ -47,5 +48,9 @@ export class ProductDetailsComponent implements OnInit {
   canAddToCart(product: Product): boolean {
     const cartItem = this.cartService.getCartItemsValue().find(item => item.id === product.id);
     return cartItem ? cartItem.quantity < product.quantity : true;
+  }
+
+  getImageUrl(imagePath: string): string {
+    return `${this.backendUrl}${imagePath}`;
   }
 }

@@ -185,19 +185,26 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     return Array(totalPages).fill(0).map((x, i) => i + 1);
   }
 
+  canAddToCart(product: Product): boolean {
+    const cartItem = this.cartService.getCartItemsValue().find(item => item.id === product.id);
+    return cartItem ? cartItem.quantity < product.quantity : true;
+  }
+
   addToCart(product: Product) {
-    const success = this.cartService.addToCart(product);
-    if (!success) {
+    if (this.canAddToCart(product)) {
+      const success = this.cartService.addToCart(product);
+      if (!success) {
+        this.snackBar.open('Cannot add more items than available in stock.', 'Close', {
+          duration: 3000,
+        });
+      }
+    } else {
       this.snackBar.open('Cannot add more items than available in stock.', 'Close', {
         duration: 3000,
       });
     }
   }
 
-  canAddToCart(product: Product): boolean {
-    const cartItem = this.cartService.getCartItemsValue().find(item => item.id === product.id);
-    return cartItem ? cartItem.quantity < product.quantity : true;
-  }
 
   fetchProductsByCategory(categoryId: number) {
     this.pageNumber = 1;

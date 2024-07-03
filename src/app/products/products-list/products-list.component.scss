@@ -239,3 +239,9 @@
   align-items: center;
   margin-top: 20px;
 }
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.65;
+}

@@ -47,16 +47,28 @@ export class CartComponent implements OnInit {
     this.totalQuantity = this.cartItems.reduce((acc, item) => acc + item.quantity, 0);
   }
 
+  canAddToCart(product: Product): boolean {
+    const cartItem = this.cartService.getCartItemsValue().find(item => item.id === product.id);
+    return cartItem ? cartItem.quantity < product.quantity : true;
+  }
+
   increaseQuantity(product: Product): void {
-    const success = this.cartService.addToCart(product);
-    if (!success) {
+    if (this.canAddToCart(product)) {
+      const success = this.cartService.addToCart(product);
+      if (!success) {
+        this.snackBar.open('Cannot add more items than available in stock.', 'Close', {
+          duration: 3000,
+        });
+      } else {
+        this.updateCartSummary();
+      }
+    } else {
       this.snackBar.open('Cannot add more items than available in stock.', 'Close', {
         duration: 3000,
       });
-    } else {
-      this.updateCartSummary();
     }
   }
+
 
   decreaseQuantity(product: Product): void {
     const success = this.cartService.decreaseQuantity(product);
